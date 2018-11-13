@@ -1,11 +1,10 @@
-const express = require('express');
-const { Worker } = require("./worker");
+const express = require("express");
 
-function createApp(workerContents, forwardRequestsToHost) {
+function createApp() {
   const app = express();
   return app;
 }
 
 module.exports = {
   createApp
-}
+};

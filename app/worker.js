@@ -1,11 +1,11 @@
-const { createContext, Script } = require('vm')
+const { createContext, Script } = require("vm");
 const { Request, Response, Headers } = require("node-fetch");
 const { URL } = require("url");
 
 class Worker {
-  constructor(workerContents, {forwardHost, fetch} = {}) {
+  constructor(workerContents, { forwardHost, fetch } = {}) {
     this.listeners = {
-      fetch: (e) => e.respondWith(this.fetchUpstream(e.request))
+      fetch: e => e.respondWith(this.fetchUpstream(e.request))
     };
     this.forwardHost = forwardHost;
     this.fetchLib = fetch;
@@ -16,23 +16,25 @@ class Worker {
   evaluateWorkerContents(workerContents) {
     const context = { Request, Response, Headers, URL };
     const script = new Script(workerContents);
-    script.runInContext(createContext(Object.assign(context, {
-      fetch: this.fetchUpstream.bind(this),
-      addEventListener: this.addEventListener.bind(this),
-      triggerEvent: this.triggerEvent.bind(this)
-    })))
+    script.runInContext(
+      createContext(
+        Object.assign(context, {
+          fetch: this.fetchUpstream.bind(this),
+          addEventListener: this.addEventListener.bind(this),
+          triggerEvent: this.triggerEvent.bind(this)
+        })
+      )
+    );
   }
 
-  async fetchUpstream() {
-
-  }
+  async fetchUpstream() {}
 
   executeFetchEvent(...args) {
     let response = null;
     this.triggerEvent("fetch", {
-      type: 'fetch',
+      type: "fetch",
       request: new Request(...args),
-      respondWith: (r) => response = r
+      respondWith: r => (response = r)
     });
     return Promise.resolve(response);
   }
@@ -42,8 +44,8 @@ class Worker {
   }
 
   triggerEvent(event) {
-    return this.listeners[event].apply(this, Array.from(arguments).slice(1))
+    return this.listeners[event].apply(this, Array.from(arguments).slice(1));
   }
 }
 
-module.exports = { Worker }
+module.exports = { Worker };
