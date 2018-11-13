@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "standard",
+    "plugin:jest/recommended",
+    "plugin:prettier/recommended",
+    "prettier/standard"
+  ],
+  "plugins": [
+    "standard",
+    "jest"
+  ]
+}
