@@ -47,26 +47,33 @@ describe("Workers", () => {
         upstreamServer = upstreamApp.listen(resolve);
       });
 
-      upstreamHost = `http://127.0.0.1:${upstreamServer.address().port}`;
+      upstreamHost = `127.0.0.1:${upstreamServer.address().port}`;
     });
 
     test("It Fetches Correctly", async done => {
-      const worker = new Worker("", {
-        forwardHost: upstreamHost
-      });
-      const response = await worker.executeFetchEvent(`${upstreamHost}/success`);
+      const worker = new Worker("");
+      const response = await worker.executeFetchEvent(`http://${upstreamHost}/success`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("OK");
       done();
     });
 
     test("It does not follow redirects", async done => {
-      const worker = new Worker("", {
-        forwardHost: upstreamHost
-      });
-      const response = await worker.executeFetchEvent(`${upstreamHost}/redirect`);
+      const worker = new Worker("");
+      const response = await worker.executeFetchEvent(`http://${upstreamHost}/redirect`);
       expect(response.status).toBe(301);
       expect(response.headers.get("Location")).toBe("https://www.google.com/");
+      done();
+    });
+
+    test("The worker forwards the request upstream", async done => {
+      const worker = new Worker("", {
+        srcHost: "foo.com",
+        dstHost: upstreamHost
+      });
+      const response = await worker.executeFetchEvent(`http://foo.com/success`);
+      expect(response.status).toBe(200);
+      expect(await response.text()).toBe("OK");
       done();
     });
 

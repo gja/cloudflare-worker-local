@@ -4,11 +4,12 @@ const { URL } = require("url");
 const fetch = require("node-fetch");
 
 class Worker {
-  constructor(workerContents, { forwardHost } = {}) {
+  constructor(workerContents, { srcHost, dstHost } = {}) {
     this.listeners = {
       fetch: e => e.respondWith(this.fetchUpstream(e.request))
     };
-    this.forwardHost = forwardHost;
+    this.srcHost = srcHost;
+    this.dstHost = dstHost;
 
     this.evaluateWorkerContents(workerContents);
   }
@@ -27,9 +28,12 @@ class Worker {
     );
   }
 
-  async fetchUpstream(request) {
-    const response = await fetch(request);
-    return response;
+  fetchUpstream(request) {
+    const url = new URL(request.url);
+    if (url.host === this.srcHost) {
+      request = new Request(request.url.replace(this.srcHost, this.dstHost));
+    }
+    return fetch(request);
   }
 
   executeFetchEvent(url, opts) {

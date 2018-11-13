@@ -12,13 +12,15 @@ if (cluster.isMaster) {
   });
 } else {
   const { createApp } = require("./app/server.js");
+  const port = process.argv[4];
   const app = createApp(fs.readFileSync(process.argv[2]), {
-    forwardHost: process.argv[3]
+    srcHost: `localhost:${port}`,
+    dstHost: process.argv[3]
   });
 
   try {
-    app.listen(process.argv[4], function() {
-      console.log(`Example app listening on port ${process.argv[4]}!`);
+    app.listen(port, function() {
+      console.log(`Example app listening on port ${port}!`);
     });
   } catch (e) {
     console.error("Worker died - Aborting");
