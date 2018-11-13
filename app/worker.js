@@ -1,5 +1,6 @@
-const {createContext, Script} = require('vm')
+const { createContext, Script } = require('vm')
 const { Request, Response, Headers } = require("node-fetch");
+const { URL } = require("url");
 
 class Worker {
   constructor(workerContents, {forwardHost, fetch} = {}) {
@@ -13,7 +14,7 @@ class Worker {
   }
 
   evaluateWorkerContents(workerContents) {
-    const context = { Request, Response, Headers };
+    const context = { Request, Response, Headers, URL };
     const script = new Script(workerContents);
     script.runInContext(createContext(Object.assign(context, {
       fetch: this.fetchUpstream.bind(this),
