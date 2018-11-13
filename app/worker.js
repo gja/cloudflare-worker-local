@@ -1,17 +1,6 @@
 const {createContext, Script} = require('vm')
 const { Request, Response, Headers } = require("node-fetch");
 
-class FetchEvent {
-  constructor(request) {
-    this.type = 'fetch';
-    this.request = request;
-  }
-
-  respondWith(response) {
-    this.response = Promise.resolve(response);
-  }
-}
-
 class Worker {
   constructor(workerContents, {forwardHost, fetch} = {}) {
     this.listeners = {
@@ -37,10 +26,14 @@ class Worker {
 
   }
 
-  async executeFetchEvent(...args) {
-    const event = new FetchEvent(new Request(...args));
-    this.triggerEvent("fetch", event);
-    return await event.response;
+  executeFetchEvent(...args) {
+    let response = null;
+    this.triggerEvent("fetch", {
+      type: 'fetch',
+      request: new Request(...args),
+      respondWith: (r) => response = r
+    });
+    return Promise.resolve(response);
   }
 
   addEventListener(event, listener) {
