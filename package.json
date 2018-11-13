@@ -1,0 +1,25 @@
+{
+  "name": "cloudflare-worker-local",
+  "version": "1.0.0",
+  "description": "Run a Cloudflare-compatible Worker Locally",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gja/cloudflare-worker-local.git"
+  },
+  "author": "Tejas Dinkar <tejas@gja.in>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/gja/cloudflare-worker-local/issues"
+  },
+  "homepage": "https://github.com/gja/cloudflare-worker-local#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0"
+  }
+}
