@@ -27,4 +27,18 @@ describe("server", () => {
         done();
       });
   });
+
+  it("passes post information on", done => {
+    const app = createApp(
+      'addEventListener("fetch", (e) => e.respondWith(e.request.text().then(text => new Response(`${e.request.method}|${text}`))))'
+    );
+
+    supertest(app)
+      .post("/some-route")
+      .send("foo=bar")
+      .expect(200, function() {
+        expect(this.response.text).toBe(`POST|foo=bar`);
+        done();
+      });
+  });
 });
