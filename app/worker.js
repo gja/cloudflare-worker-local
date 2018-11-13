@@ -14,7 +14,9 @@ class FetchEvent {
 
 class Worker {
   constructor(workerContents, {forwardHost, fetch} = {}) {
-    this.listeners = {};
+    this.listeners = {
+      fetch: (e) => e.respondWith(this.fetchUpstream(e.request))
+    };
     this.forwardHost = forwardHost;
     this.fetchLib = fetch;
 
@@ -25,13 +27,13 @@ class Worker {
     const context = { Request, Response, Headers };
     const script = new Script(workerContents);
     script.runInContext(createContext(Object.assign(context, {
-      fetch: this.internalFetch.bind(this),
+      fetch: this.fetchUpstream.bind(this),
       addEventListener: this.addEventListener.bind(this),
       triggerEvent: this.triggerEvent.bind(this)
     })))
   }
 
-  async internalFetch() {
+  async fetchUpstream() {
 
   }
 
