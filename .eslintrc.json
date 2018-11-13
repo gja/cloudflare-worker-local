@@ -8,5 +8,8 @@
   "plugins": [
     "standard",
     "jest"
-  ]
+  ],
+  "rules": {
+    "max-len": ["warn", { "code": 120 }]
+  }
 }

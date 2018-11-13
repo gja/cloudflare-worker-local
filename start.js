@@ -12,7 +12,9 @@ if (cluster.isMaster) {
   });
 } else {
   const { createApp } = require("./app/server.js");
-  const app = createApp(fs.readFileSync(process.argv[2]), process.argv[3]);
+  const app = createApp(fs.readFileSync(process.argv[2]), {
+    forwardHost: process.argv[3]
+  });
 
   try {
     app.listen(process.argv[4], function() {

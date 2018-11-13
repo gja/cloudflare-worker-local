@@ -1,14 +1,14 @@
 const { createContext, Script } = require("vm");
 const { Request, Response, Headers } = require("node-fetch");
 const { URL } = require("url");
+const fetch = require("node-fetch");
 
 class Worker {
-  constructor(workerContents, { forwardHost, fetch } = {}) {
+  constructor(workerContents, { forwardHost } = {}) {
     this.listeners = {
       fetch: e => e.respondWith(this.fetchUpstream(e.request))
     };
     this.forwardHost = forwardHost;
-    this.fetchLib = fetch;
 
     this.evaluateWorkerContents(workerContents);
   }
@@ -27,13 +27,16 @@ class Worker {
     );
   }
 
-  async fetchUpstream() {}
+  async fetchUpstream(request) {
+    const response = await fetch(request);
+    return response;
+  }
 
-  executeFetchEvent(...args) {
+  executeFetchEvent(url, opts) {
     let response = null;
     this.triggerEvent("fetch", {
       type: "fetch",
-      request: new Request(...args),
+      request: new Request(url, { redirect: "manual", ...opts }),
       respondWith: r => (response = r)
     });
     return Promise.resolve(response);
