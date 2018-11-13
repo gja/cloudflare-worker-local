@@ -1,19 +1,23 @@
 const {createContext, Script} = require('vm')
+const { Request, Response, Headers } = require("node-fetch");
 
 class Worker {
   constructor(workerContents, {forwardHost, fetch} = {}) {
-    this.self = this;
-    this.fetch = this.fetch.bind(this);
-    this.addEventListener = this.addEventListener.bind(this);
-    this.triggerEvent = this.triggerEvent.bind(this);
-
-    this.__listeners = {};
-
-    const script = new Script(workerContents);
-    script.runInContext(createContext(this))
-
+    this.listeners = {};
     this.forwardHost = forwardHost;
     this.fetchLib = fetch;
+
+    this.evaluateWorkerContents(workerContents);
+  }
+
+  evaluateWorkerContents(workerContents) {
+    const context = { Request, Response, Headers };
+    const script = new Script(workerContents);
+    script.runInContext(createContext(Object.assign(context, {
+      fetch: this.fetch.bind(this),
+      addEventListener: this.addEventListener.bind(this),
+      triggerEvent: this.triggerEvent.bind(this)
+    })))
   }
 
   async fetch() {
@@ -21,11 +25,11 @@ class Worker {
   }
 
   addEventListener(event, listener) {
-    this.__listeners[event] = listener;
+    this.listeners[event] = listener;
   }
 
   triggerEvent(event) {
-    return this.__listeners[event].apply(this, Array.from(arguments).slice(1))
+    return this.listeners[event].apply(this, Array.from(arguments).slice(1))
   }
 }
 
