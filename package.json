@@ -1,10 +1,10 @@
 {
   "name": "cloudflare-worker-local",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Run a Cloudflare-compatible Worker Locally",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "prepublishOnly": "npm install && git diff --quiet && git tag -m '' -a v$(cat package.json | grep version | head -n1  | cut -d \\\" -f 4) && git push --follow-tags origin"
   },
   "repository": {
     "type": "git",
