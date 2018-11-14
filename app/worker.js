@@ -32,6 +32,7 @@ class Worker {
     const url = new URL(request.url);
     if (url.host === this.srcHost) {
       request = new Request(request.url.replace(this.srcHost, this.dstHost));
+      request.headers.set("Host", this.srcHost);
     }
     return fetch(request);
   }

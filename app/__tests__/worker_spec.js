@@ -42,6 +42,7 @@ describe("Workers", () => {
       const upstreamApp = express();
       upstreamApp.get("/success", (req, res) => res.send("OK"));
       upstreamApp.get("/redirect", (req, res) => res.redirect(301, "https://www.google.com"));
+      upstreamApp.get("/host", (req, res) => res.send(req.hostname));
 
       await new Promise(resolve => {
         upstreamServer = upstreamApp.listen(resolve);
@@ -74,6 +75,17 @@ describe("Workers", () => {
       const response = await worker.executeFetchEvent(`http://foo.com/success`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("OK");
+      done();
+    });
+
+    test("The worker does not keeps the host the same", async done => {
+      const worker = new Worker("", {
+        srcHost: "foo.com",
+        dstHost: upstreamHost
+      });
+      const response = await worker.executeFetchEvent(`http://foo.com/host`);
+      expect(response.status).toBe(200);
+      expect(await response.text()).toBe("foo.com");
       done();
     });
 
