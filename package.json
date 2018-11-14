@@ -1,6 +1,6 @@
 {
   "name": "cloudflare-worker-local",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Run a Cloudflare-compatible Worker Locally",
   "main": "index.js",
   "scripts": {
@@ -24,5 +24,11 @@
   "devDependencies": {
     "jest": "^23.6.0",
     "supertest": "^3.3.0"
+  },
+  "engines": {
+    "node": ">=9.11.0"
+  },
+  "bin": {
+    "cloudflare-worker-local": "./cli.js"
   }
 }

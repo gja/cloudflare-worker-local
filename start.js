@@ -2,6 +2,11 @@ const cluster = require("cluster");
 const process = require("process");
 const fs = require("fs");
 
+if(process.argv.length != 5) {
+  console.log("Usage: cloudflare-worker-local /path/to/worker.js host.to.forward.request.to:3000 <port-to-run-on>");
+  process.exit(-1);
+}
+
 if (cluster.isMaster) {
   for (var i = 0; i < 4; i++) {
     cluster.fork();
