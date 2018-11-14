@@ -52,7 +52,7 @@ describe("Workers", () => {
     });
 
     test("It Fetches Correctly", async done => {
-      const worker = new Worker("");
+      const worker = new Worker("", { upstreamHost: upstreamHost });
       const response = await worker.executeFetchEvent(`http://${upstreamHost}/success`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("OK");
@@ -60,7 +60,7 @@ describe("Workers", () => {
     });
 
     test("It does not follow redirects", async done => {
-      const worker = new Worker("");
+      const worker = new Worker("", { upstreamHost: upstreamHost });
       const response = await worker.executeFetchEvent(`http://${upstreamHost}/redirect`);
       expect(response.status).toBe(301);
       expect(response.headers.get("Location")).toBe("https://www.google.com/");
@@ -68,10 +68,7 @@ describe("Workers", () => {
     });
 
     test("The worker forwards the request upstream", async done => {
-      const worker = new Worker("", {
-        srcHost: "foo.com",
-        dstHost: upstreamHost
-      });
+      const worker = new Worker("", { upstreamHost: upstreamHost });
       const response = await worker.executeFetchEvent(`http://foo.com/success`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("OK");
@@ -79,10 +76,7 @@ describe("Workers", () => {
     });
 
     test("The worker does not keeps the host the same", async done => {
-      const worker = new Worker("", {
-        srcHost: "foo.com",
-        dstHost: upstreamHost
-      });
+      const worker = new Worker("", { upstreamHost: upstreamHost });
       const response = await worker.executeFetchEvent(`http://foo.com/host`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("foo.com");
