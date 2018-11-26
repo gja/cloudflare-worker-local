@@ -20,10 +20,15 @@ async function callWorker(worker, req, res) {
 }
 
 function createApp(workerContent, opts) {
-  const worker = new Worker(workerContent, opts);
+  let workersByOrigin = {};
   const app = express();
   app.use(bodyParser.raw({ type: "*/*" }));
-  app.use((req, res) => callWorker(worker, req, res));
+  app.use((req, res) => {
+    const origin = req.headers.host;
+    workersByOrigin[origin] = workersByOrigin[origin] || new Worker(origin, workerContent, opts);
+    const worker = workersByOrigin[origin];
+    callWorker(worker, req, res);
+  });
   return app;
 }
 
