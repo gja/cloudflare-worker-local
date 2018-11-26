@@ -1,6 +1,7 @@
 const cluster = require("cluster");
 const process = require("process");
 const fs = require("fs");
+const chokidar = require('chokidar');
 
 if(process.argv.length != 5) {
   console.log("Usage: cloudflare-worker-local /path/to/worker.js host.to.forward.request.to:3000 <port-to-run-on>");
@@ -8,6 +9,8 @@ if(process.argv.length != 5) {
 }
 
 if (cluster.isMaster) {
+  chokidar.watch(process.argv[2], { ignoreInitial: true })
+    .on('change', cluster.disconnect);
   for (var i = 0; i < 4; i++) {
     cluster.fork();
   }

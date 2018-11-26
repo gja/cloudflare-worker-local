@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/gja/cloudflare-worker-local#readme",
   "dependencies": {
+    "chokidar": "^2.0.4",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "node-fetch": "^2.3.0"
