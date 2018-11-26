@@ -20,10 +20,12 @@ async function callWorker(worker, req, res) {
 }
 
 function createApp(workerContent, opts) {
-  const worker = new Worker(workerContent, opts);
+  let worker = new Worker(workerContent, opts);
   const app = express();
   app.use(bodyParser.raw({ type: "*/*" }));
   app.use((req, res) => callWorker(worker, req, res));
+  app.updateWorker = contents => (worker = new Worker(contents, opts));
+
   return app;
 }
 

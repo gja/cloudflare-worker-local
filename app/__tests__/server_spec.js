@@ -41,4 +41,13 @@ describe("server", () => {
         done();
       });
   });
+
+  it("allows you to update the worker", done => {
+    const app = createApp('addEventListener("fetch", (e) => e.respondWith(new Response("goodbye")))');
+
+    supertest(app)
+      .get("/some-route")
+      .expect(200, "goodbye")
+      .then(() => done());
+  });
 });
