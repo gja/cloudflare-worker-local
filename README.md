@@ -9,6 +9,16 @@ $ cloudflare-worker-local /path/to/worker.js localhost:3000 4000
 
 Listening on Port 4000 and forwarding requests to http://localhost:3000/
 ```
+
+## Automatically reloading
+
+It is possible to use nodemon to automatically reload the worker
+
+```shell
+$ npm install -g nodemon
+$ nodemon --watch /path/to/worker.js --exec 'node start.js /path/to/worker.js localhost:3000 4000'
+```
+
 ## Things that are supported (and in scope)
 
 * Anything in Node.js scope by default (Object, Array)
