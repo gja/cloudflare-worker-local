@@ -37,54 +37,75 @@ describe("Workers", () => {
   describe("Fetch Behavior", () => {
     var upstreamServer;
     var upstreamHost;
+    const port = 3000; // https://www.npmjs.com/package/get-port ?
+    const host = `localhost:${port}`;
+    let otherServer;
+    let otherHost;
 
     beforeAll(async function() {
       const upstreamApp = express();
       upstreamApp.get("/success", (req, res) => res.send("OK"));
       upstreamApp.get("/redirect", (req, res) => res.redirect(301, "https://www.google.com"));
-      upstreamApp.get("/host", (req, res) => res.send(req.hostname));
+      upstreamApp.get("/host", (req, res) => res.send(req.headers.host));
 
       await new Promise(resolve => {
         upstreamServer = upstreamApp.listen(resolve);
       });
 
       upstreamHost = `127.0.0.1:${upstreamServer.address().port}`;
+
+      const otherApp = express();
+      otherApp.get("/teapot", (req, res) => res.send(418, "I'm a teapot"));
+      await new Promise(resolve => {
+        otherServer = otherApp.listen(resolve);
+      });
+      otherHost = `127.0.0.1:${otherServer.address().port}`;
     });
 
     test("It Fetches Correctly", async done => {
-      const worker = new Worker("", { upstreamHost: upstreamHost });
-      const response = await worker.executeFetchEvent(`http://${upstreamHost}/success`);
+      const worker = new Worker("", { upstreamHost, port });
+      const response = await worker.executeFetchEvent(`http://${host}/success`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("OK");
       done();
     });
 
     test("It does not follow redirects", async done => {
-      const worker = new Worker("", { upstreamHost: upstreamHost });
-      const response = await worker.executeFetchEvent(`http://${upstreamHost}/redirect`);
+      const worker = new Worker("", { upstreamHost, port });
+      const response = await worker.executeFetchEvent(`http://${host}/redirect`);
       expect(response.status).toBe(301);
       expect(response.headers.get("Location")).toBe("https://www.google.com/");
       done();
     });
 
     test("The worker forwards the request upstream", async done => {
-      const worker = new Worker("", { upstreamHost: upstreamHost });
-      const response = await worker.executeFetchEvent(`http://foo.com/success`);
+      const worker = new Worker("", { upstreamHost, port });
+      const response = await worker.executeFetchEvent(`http://${host}/success`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("OK");
       done();
     });
 
     test("The worker does not keeps the host the same", async done => {
-      const worker = new Worker("", { upstreamHost: upstreamHost });
-      const response = await worker.executeFetchEvent(`http://foo.com/host`);
+      const worker = new Worker("", { upstreamHost, port });
+      const response = await worker.executeFetchEvent(`http://${host}/host`);
       expect(response.status).toBe(200);
-      expect(await response.text()).toBe("foo.com");
+      expect(await response.text()).toBe(host);
+      done();
+    });
+
+    test("The worker can fetch other origins", async done => {
+      const script = `addEventListener("fetch", e => e.respondWith(fetch('http://${otherHost}/teapot')))`;
+      const worker = new Worker(script, { upstreamHost, port });
+      const response = await worker.executeFetchEvent(`http://${host}/`);
+      expect(response.status).toBe(418);
+      expect(await response.text()).toBe("I'm a teapot");
       done();
     });
 
     afterAll(async function() {
       upstreamServer.close();
+      otherServer.close();
     });
   });
 });

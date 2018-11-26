@@ -18,7 +18,7 @@ if (cluster.isMaster) {
 } else {
   const { createApp } = require("./app/server.js");
   const port = process.argv[4];
-  const app = createApp(fs.readFileSync(process.argv[2]), { upstreamHost: process.argv[3] });
+  const app = createApp(fs.readFileSync(process.argv[2]), { upstreamHost: process.argv[3], port });
 
   try {
     app.listen(port, function() {

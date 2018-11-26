@@ -4,11 +4,12 @@ const { URL } = require("url");
 const fetch = require("node-fetch");
 
 class Worker {
-  constructor(workerContents, { upstreamHost } = {}) {
+  constructor(workerContents, { upstreamHost, port } = {}) {
     this.listeners = {
       fetch: e => e.respondWith(this.fetchUpstream(e.request))
     };
     this.upstreamHost = upstreamHost;
+    this.port = port;
 
     this.evaluateWorkerContents(workerContents);
   }
@@ -27,14 +28,20 @@ class Worker {
     );
   }
 
-  fetchUpstream(request) {
+  fetchUpstream(urlOrRequest, init) {
+    let request = urlOrRequest instanceof Request
+      ? urlOrRequest
+      : new Request(urlOrRequest, init);
+
     const url = new URL(request.url);
-    const originalHost = url.host;
+    if (url.host === `localhost:${this.port}` || url.host === `127.0.0.1:${this.port}`) {
+      const originalHost = url.host;
 
-    url.host = this.upstreamHost;
+      url.host = this.upstreamHost;
 
-    request = new Request(url, request);
-    request.headers.set("Host", originalHost);
+      request = new Request(url, request);
+      request.headers.set("Host", originalHost);
+    }
 
     return fetch(request);
   }
