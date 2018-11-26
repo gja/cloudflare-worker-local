@@ -2,7 +2,7 @@ const cluster = require("cluster");
 const process = require("process");
 const fs = require("fs");
 
-if(process.argv.length != 5) {
+if (process.argv.length != 5) {
   console.log("Usage: cloudflare-worker-local /path/to/worker.js host.to.forward.request.to:3000 <port-to-run-on>");
   process.exit(-1);
 }
@@ -11,6 +11,13 @@ if (cluster.isMaster) {
   for (var i = 0; i < 4; i++) {
     cluster.fork();
   }
+
+  process.on("SIGHUP", () => {
+    for (let i in cluster.workers) {
+      cluster.workers[i].process.kill("SIGHUP");
+    }
+  });
+
   cluster.on("exit", function(worker, code, signal) {
     console.log("worker " + worker.process.pid + " died");
     cluster.fork();
@@ -18,7 +25,15 @@ if (cluster.isMaster) {
 } else {
   const { createApp } = require("./app/server.js");
   const port = process.argv[4];
-  const app = createApp(fs.readFileSync(process.argv[2]), { upstreamHost: process.argv[3] });
+  const opts = { upstreamHost: process.argv[3] };
+  const app = createApp(fs.readFileSync(process.argv[2]), opts);
+
+  process.on("SIGHUP", () => {
+    fs.readFile(process.argv[2], (_, newWorkerContent) => {
+      console.log("Updating Worker");
+      app.updateWorker(newWorkerContent);
+    });
+  });
 
   try {
     app.listen(port, function() {

@@ -29,6 +29,11 @@ function createApp(workerContent, opts) {
     const worker = workersByOrigin[origin];
     callWorker(worker, req, res);
   });
+  app.updateWorker = contents => {
+    workerContent = contents;
+    workersByOrigin = {};
+  };
+
   return app;
 }
 
