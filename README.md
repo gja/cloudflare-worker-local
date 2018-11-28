@@ -16,12 +16,7 @@ It is possible to use nodemon to automatically reload the worker
 
 ```shell
 $ npm install -g nodemon
-$ nodemon --watch /path/to/worker.js --exec 'cloudflare-worker-local /path/to/worker.js localhost:3000 4000'
-```
-
-If you want autoreloading, and are using BASH (or anything except for ZSH), this may work better
-```shell
-$ cloudflare-worker-local /path/to/worker.js localhost:3000 4000 & nodemon --watch /path/to/worker.js --exec "kill -HUP $!"; kill $!
+$ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-local /path/to/worker.js localhost:3000 4000'
 ```
 
 ## Things that are supported (and in scope)
