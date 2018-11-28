@@ -1,5 +1,6 @@
 const express = require("express");
 const { Worker } = require("../worker");
+const { InMemoryKVStore } = require("../in-memory-kv-store");
 
 describe("Workers", () => {
   test("It Can Create and Execute a Listener", () => {
@@ -95,6 +96,21 @@ describe("Workers", () => {
       const response = await worker.executeFetchEvent(`http://foo.com/host`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe(upstreamHost);
+      done();
+    });
+
+    test("It can save things into the KV store", async done => {
+      const kvStoreFactory = new InMemoryKVStore();
+      const worker = new Worker(
+        "foo.com",
+        `addEventListener("fetch", (e) => {e.respondWith(new Response("foo")); e.waitUntil(MYSTORE.put("foo", "bar"))})`,
+        { kvStores: ["MYSTORE"], kvStoreFactory: kvStoreFactory }
+      );
+
+      const response = await worker.executeFetchEvent(`http://foo.com/blah`);
+      expect(response.status).toBe(200);
+      expect(await response.text()).toBe("foo");
+      expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe("bar");
       done();
     });
 

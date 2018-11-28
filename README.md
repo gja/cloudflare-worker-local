@@ -19,6 +19,11 @@ $ npm install -g nodemon
 $ nodemon --watch /path/to/worker.js --exec 'cloudflare-worker-local /path/to/worker.js localhost:3000 4000'
 ```
 
+If you want autoreloading, and are using BASH (or anything except for ZSH), this may work better
+```shell
+$ cloudflare-worker-local /path/to/worker.js localhost:3000 4000 & nodemon --watch /path/to/worker.js --exec "kill -HUP $!"; kill $!
+```
+
 ## Things that are supported (and in scope)
 
 * Anything in Node.js scope by default (Object, Array)
@@ -36,3 +41,4 @@ $ nodemon --watch /path/to/worker.js --exec 'cloudflare-worker-local /path/to/wo
 ## Environment Variables
 
 * NUM_WORKERS - Specifies the number of node workers (default 1, to get KV Working in memory)
+* KV_NAMESPACES - A comma separated list of keyspaces. (ex: MY_STORE,ANOTHER_STORE)

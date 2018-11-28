@@ -3,23 +3,34 @@ const { Request, Response, Headers } = require("node-fetch");
 const { URL } = require("url");
 const fetch = require("node-fetch");
 
+function buildKVStores(kvStoreFactory, kvStores) {
+  return kvStores.reduce((acc, name) => {
+    acc[name] = kvStoreFactory.getClient(name);
+    return acc;
+  }, {});
+}
+
 class Worker {
-  constructor(origin, workerContents, { upstreamHost } = {}) {
+  constructor(
+    origin,
+    workerContents,
+    { upstreamHost, kvStores = [], kvStoreFactory = require("./in-memory-kv-store") } = {}
+  ) {
     this.listeners = {
       fetch: e => e.respondWith(this.fetchUpstream(e.request))
     };
     this.upstreamHost = upstreamHost;
     this.origin = origin;
 
-    this.evaluateWorkerContents(workerContents);
+    this.evaluateWorkerContents(workerContents, buildKVStores(kvStoreFactory, kvStores));
   }
 
-  evaluateWorkerContents(workerContents) {
+  evaluateWorkerContents(workerContents, kvStores) {
     const context = { Request, Response, Headers, URL };
     const script = new Script(workerContents);
     script.runInContext(
       createContext(
-        Object.assign(context, {
+        Object.assign(context, kvStores, {
           fetch: this.fetchUpstream.bind(this),
           addEventListener: this.addEventListener.bind(this),
           triggerEvent: this.triggerEvent.bind(this)
@@ -43,14 +54,18 @@ class Worker {
     return fetch(request);
   }
 
-  executeFetchEvent(url, opts) {
+  async executeFetchEvent(url, opts) {
     let response = null;
+    let waitUntil = [];
     this.triggerEvent("fetch", {
       type: "fetch",
       request: new Request(url, { redirect: "manual", ...opts }),
-      respondWith: r => (response = r)
+      respondWith: r => (response = r),
+      waitUntil: e => waitUntil.push(e)
     });
-    return Promise.resolve(response);
+    const r = await Promise.resolve(response);
+    await Promise.all(waitUntil);
+    return r;
   }
 
   addEventListener(event, listener) {
