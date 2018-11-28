@@ -8,7 +8,7 @@ if (process.argv.length != 5) {
 }
 
 if (cluster.isMaster) {
-  for (var i = 0; i < 4; i++) {
+  for (var i = 0; i < (process.env.NUM_WORKERS || 1); i++) {
     cluster.fork();
   }
 

@@ -16,7 +16,7 @@ It is possible to use nodemon to automatically reload the worker
 
 ```shell
 $ npm install -g nodemon
-$ nodemon --watch /path/to/worker.js --exec 'node start.js /path/to/worker.js localhost:3000 4000'
+$ nodemon --watch /path/to/worker.js --exec 'cloudflare-worker-local /path/to/worker.js localhost:3000 4000'
 ```
 
 ## Things that are supported (and in scope)
@@ -31,3 +31,8 @@ $ nodemon --watch /path/to/worker.js --exec 'node start.js /path/to/worker.js lo
 * Do an in-memory story for Cloudflare Key-Value
 * Support WASM
 * Support CPU timeouts
+
+
+## Environment Variables
+
+* NUM_WORKERS - Specifies the number of node workers (default 1, to get KV Working in memory)
