@@ -8,7 +8,7 @@ if (process.argv.length != 5) {
 }
 
 if (cluster.isMaster) {
-  for (var i = 0; i < 4; i++) {
+  for (var i = 0; i < (process.env.NUM_WORKERS || 1); i++) {
     cluster.fork();
   }
 
@@ -25,7 +25,7 @@ if (cluster.isMaster) {
 } else {
   const { createApp } = require("./app/server.js");
   const port = process.argv[4];
-  const opts = { upstreamHost: process.argv[3] };
+  const opts = { upstreamHost: process.argv[3], kvStores: (process.env.KV_NAMESPACES || "").split(",") };
   const app = createApp(fs.readFileSync(process.argv[2]), opts);
 
   process.on("SIGHUP", () => {
