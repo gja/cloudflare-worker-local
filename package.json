@@ -4,7 +4,7 @@
   "description": "Run a Cloudflare-compatible Worker Locally",
   "main": "index.js",
   "scripts": {
-    "prepublishOnly": "npm install && git diff --quiet && npm test && git tag -m '' -a v$(cat package.json | grep version | head -n1  | cut -d \\\" -f 4) && git push --follow-tags origin",
+    "prepublishOnly": "npm install && git diff --quiet && npm test && npx standard-version && git push --follow-tags origin",
     "test": "jest",
     "test-ci": "jest --ci --reporters=jest-junit --reporters=default --coverage --coverageReporters=cobertura --coverageReporters=html"
   },
@@ -29,6 +29,7 @@
   "devDependencies": {
     "jest": "^23.6.0",
     "jest-junit": "^5.2.0",
+    "standard-version": "^4.4.0",
     "supertest": "^3.3.0"
   },
   "engines": {
