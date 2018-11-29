@@ -28,6 +28,49 @@ describe("Workers", () => {
       expect(url.pathname).toBe("/api");
       expect(url.searchParams.get("foo")).toBe("bar");
     });
+
+    test('It has support for base64 encoding APIs', () => {
+      const worker = new Worker(
+        'foo.com',
+        `addEventListener('test', () => ({ encoded: btoa('test'), decoded: atob('dGVzdA==') }))`
+      );
+      const { encoded, decoded } = worker.triggerEvent('test');
+      expect(encoded).toBe('dGVzdA==');
+      expect(decoded).toBe('test')
+    });
+
+    test('It has support for crypto and Text encoding APIs', async () => {
+      const worker = new Worker(
+        'foo.com',
+        `addEventListener('test', async () => {
+          const password = 'test';
+          const plainText = 'foo';
+          const ptUtf8 = new TextEncoder().encode(plainText);
+          const pwUtf8 = new TextEncoder().encode(password);
+          const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8); 
+          const iv = crypto.getRandomValues(new Uint8Array(12));
+          const alg = { name: 'AES-GCM', iv: iv };
+          const encKey = await crypto.subtle.importKey('raw', pwHash, alg, false, ['encrypt']);
+          const encBuffer = await crypto.subtle.encrypt(alg, encKey, ptUtf8);
+          const decKey = await crypto.subtle.importKey('raw', pwHash, alg, false, ['decrypt']);
+          const ptBuffer = await crypto.subtle.decrypt(alg, decKey, encBuffer);
+          const plainText2 = new TextDecoder().decode(ptBuffer);
+          return plainText === plainText2;
+        })`
+      );
+      const decrypted = await worker.triggerEvent('test');
+      expect(decrypted).toBe(true);
+    });
+
+    test('It has support for the console API', () => {
+      const worker = new Worker(
+        'foo.com',
+        `addEventListener('test', () => console.log('test'))`
+      );
+      const spy = jest.spyOn(console, 'log');
+      worker.triggerEvent('test');
+      expect(spy).toHaveBeenCalledWith('test');
+    });
   });
 
   test("It can stub out responses", async () => {
