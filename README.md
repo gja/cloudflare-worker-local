@@ -24,14 +24,22 @@ $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-l
 * Anything in Node.js scope by default (Object, Array)
 * Anything provided by fetch (fetch, Request, Response, Headers)
 * WHATWG URL
+* console
+* btoa / atob
+* crypto.subtle
+* Cloudflare key value store if you pass in the KV_NAMESPACE environment variable
 * ... this list should probably have more things
+
+## Contributors
+
+* Tejas Dinkar (@gja)
+* Jeremy Danyow (@jdanyow)
 
 ## Future enhancements
 
-* Do an in-memory story for Cloudflare Key-Value
 * Support WASM
 * Support CPU timeouts
-
+* Better Examples
 
 ## Environment Variables
 
