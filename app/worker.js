@@ -2,6 +2,10 @@ const { createContext, Script } = require("vm");
 const { Request, Response, Headers } = require("node-fetch");
 const { URL } = require("url");
 const fetch = require("node-fetch");
+const atob = require('atob');
+const btoa = require('btoa');
+const crypto = new (require('node-webcrypto-ossl'))();
+const { TextDecoder, TextEncoder } = require('util');
 
 function buildKVStores(kvStoreFactory, kvStores) {
   return kvStores.reduce((acc, name) => {
@@ -26,7 +30,7 @@ class Worker {
   }
 
   evaluateWorkerContents(workerContents, kvStores) {
-    const context = { Request, Response, Headers, URL };
+    const context = { Request, Response, Headers, URL, atob, btoa, crypto, TextDecoder, TextEncoder, console };
     const script = new Script(workerContents);
     script.runInContext(
       createContext(

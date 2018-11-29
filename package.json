@@ -18,9 +18,12 @@
   },
   "homepage": "https://github.com/gja/cloudflare-worker-local#readme",
   "dependencies": {
+    "atob": "^2.1.2",
     "body-parser": "^1.18.3",
+    "btoa": "^1.2.1",
     "express": "^4.16.4",
-    "node-fetch": "^2.3.0"
+    "node-fetch": "^2.3.0",
+    "node-webcrypto-ossl": "^1.0.38"
   },
   "devDependencies": {
     "jest": "^23.6.0",
