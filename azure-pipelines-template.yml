@@ -1,0 +1,34 @@
+jobs:
+- job: ${{ parameters.name }}
+  pool: 
+    vmImage: ${{ parameters.vmImage }}
+  strategy:
+    matrix:
+      node_9_x:
+        node_version: 9.x
+      node_10_x:
+        node_version: 10.x
+      node_11_x:
+        node_version: 11.x
+    maxParallel: 3
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(node_version)
+    displayName: 'Install Node.js'
+
+  - script: npm install
+    displayName: 'Install dependencies'
+  - script: npm run test-ci
+    displayName: 'Run tests'
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      testResultsFiles: 'junit.xml'
+      testRunTitle: TestRun ${{ parameters.name }} $(node_version)
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish code coverage results'
+    inputs: 
+      codeCoverageTool: 'cobertura'
+      summaryFileLocation: $(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml
+      reportDirectory: $(Build.Repository.LocalPath)/coverage
