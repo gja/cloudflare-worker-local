@@ -30,7 +30,7 @@ class Worker {
   }
 
   evaluateWorkerContents(workerContents, kvStores) {
-    const context = { Request, Response, Headers, URL, atob, btoa, crypto, TextDecoder, TextEncoder, console };
+    const context = { Request, Response, Headers, URL, URLSearchParams, atob, btoa, crypto, TextDecoder, TextEncoder, console };
     const script = new Script(workerContents);
     script.runInContext(
       createContext(
