@@ -37,7 +37,8 @@ class Worker {
         Object.assign(context, kvStores, {
           fetch: this.fetchUpstream.bind(this),
           addEventListener: this.addEventListener.bind(this),
-          triggerEvent: this.triggerEvent.bind(this)
+          triggerEvent: this.triggerEvent.bind(this),
+          self: context
         })
       )
     );
