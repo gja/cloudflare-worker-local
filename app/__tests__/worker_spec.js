@@ -36,6 +36,18 @@ describe("Workers", () => {
       expect(url.searchParams.get("foo")).toBe("bar");
     });
 
+    test('It has support for URLSearchParams', () => {
+      const worker = new Worker(
+        'foo.com',
+        `addEventListener('test', () => new URLSearchParams({ foo: 'bar' }))`
+      );
+      const params = worker.triggerEvent('test');
+      expect(params.has('foo')).toBe(true);
+      expect(params.get('foo')).toBe('bar');
+      expect(params.has('baz')).toBe(false);
+      expect(params.get('baz')).toBe(null);
+    });
+
     test('It has support for base64 encoding APIs', () => {
       const worker = new Worker(
         'foo.com',
