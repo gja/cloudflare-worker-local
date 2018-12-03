@@ -9,6 +9,12 @@ describe("Workers", () => {
   });
 
   describe("Ensuring Things are in scope", () => {
+    test('It has self global', () => {
+      const worker = new Worker('foo.com', `addEventListener('test', () => self)`);
+      const self = worker.triggerEvent('test');
+      expect(self).toBeDefined();
+    });
+
     test("It has Node buildins like Object in scope", () => {
       const worker = new Worker("foo.com", 'addEventListener("test", () => Object.assign({}, {foo: "bar"}))');
       expect(worker.triggerEvent("test").foo).toBe("bar");
