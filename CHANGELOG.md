@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.4.0"></a>
+# [1.4.0](https://github.com/gja/cloudflare-worker-local/compare/v1.3.0...v1.4.0) (2018-12-03)
+
+
+### Features
+
+* update main in package ([#13](https://github.com/gja/cloudflare-worker-local/issues/13)) ([8c82a79](https://github.com/gja/cloudflare-worker-local/commit/8c82a79))
+* **Worker:** add self to scope ([996cec5](https://github.com/gja/cloudflare-worker-local/commit/996cec5))
+* **Worker:** add URLSearchParams ([#16](https://github.com/gja/cloudflare-worker-local/issues/16)) ([af6f1be](https://github.com/gja/cloudflare-worker-local/commit/af6f1be))
+
+
+
 <a name="1.3.0"></a>
 # [1.3.0](https://github.com/gja/cloudflare-worker-local/compare/v1.2.0...v1.3.0) (2018-11-29)
 
