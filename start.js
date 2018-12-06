@@ -23,7 +23,7 @@ if (cluster.isMaster) {
     cluster.fork();
   });
 } else {
-  const { createApp } = require("./app/server.js");
+  const { createApp } = require(".");
   const port = process.argv[4];
   const opts = { upstreamHost: process.argv[3], kvStores: (process.env.KV_NAMESPACES || "").split(",") };
   const app = createApp(fs.readFileSync(process.argv[2]), opts);
