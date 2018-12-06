@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.0"></a>
+# [1.5.0](https://github.com/gja/cloudflare-worker-local/compare/v1.4.0...v1.5.0) (2018-12-06)
+
+
+### Features
+
+* Adding an index.js which only exports safe symbols ([#19](https://github.com/gja/cloudflare-worker-local/issues/19)) ([6e5323d](https://github.com/gja/cloudflare-worker-local/commit/6e5323d))
+
+
+
 <a name="1.4.0"></a>
 # [1.4.0](https://github.com/gja/cloudflare-worker-local/compare/v1.3.0...v1.4.0) (2018-12-03)
 
