@@ -2,7 +2,7 @@
   "name": "cloudflare-worker-local",
   "version": "1.4.0",
   "description": "Run a Cloudflare-compatible Worker Locally",
-  "main": "start.js",
+  "main": "index.js",
   "scripts": {
     "prepublishOnly": "npm install && git diff --quiet && npm test && npx standard-version && git push --follow-tags origin",
     "test": "jest",
