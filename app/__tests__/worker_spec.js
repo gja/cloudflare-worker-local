@@ -172,6 +172,8 @@ describe("Workers", () => {
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("foo");
       expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe("bar");
+      await kvStoreFactory.getClient("MYSTORE").delete("foo");
+      expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe(undefined);
       done();
     });
 
