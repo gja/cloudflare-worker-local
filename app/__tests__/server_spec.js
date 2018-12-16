@@ -51,12 +51,12 @@ describe("server", () => {
       .then(() => done());
   });
 
-  it('Builds request', done => {
+  it('Builds request with cf-* headers', done => {
     const app = createApp(
       `addEventListener('fetch', e => e.respondWith(new Response('hello', {
         status: 201,
-        headers: e.request.headers } // echo request headers
-      )))`
+        headers: e.request.headers // echo request headers
+      })))`
     );
 
     supertest(app)
