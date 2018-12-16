@@ -50,4 +50,24 @@ describe("server", () => {
       .expect(200, "goodbye")
       .then(() => done());
   });
+
+  it('Builds request', done => {
+    const app = createApp(
+      `addEventListener('fetch', e => e.respondWith(new Response('hello', {
+        status: 201,
+        headers: e.request.headers } // echo request headers
+      )))`
+    );
+
+    supertest(app)
+      .get("/some-route")
+      .expect(201, "hello")
+      .expect('cf-connecting-ip', /^\d+\.\d+\.\d+\.\d+$/)
+      .expect('cf-ipcountry', 'XX')
+      .expect('cf-ray', '0000000000000000')
+      .expect('cf-visitor', '{"scheme":"http"}')
+      .expect('x-forwarded-proto', 'http')
+      .expect('x-real-ip', /^\d+\.\d+\.\d+\.\d+$/)
+      .then(() => done());
+  });
 });

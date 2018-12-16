@@ -59,12 +59,13 @@ class Worker {
     return fetch(request);
   }
 
-  async executeFetchEvent(url, opts) {
+  async executeFetchEvent(request) {
+    request = new Request(request, { redirect: 'manual' });
     let response = null;
     let waitUntil = [];
     this.triggerEvent("fetch", {
       type: "fetch",
-      request: new Request(url, { redirect: "manual", ...opts }),
+      request,
       respondWith: r => (response = r),
       waitUntil: e => waitUntil.push(e)
     });

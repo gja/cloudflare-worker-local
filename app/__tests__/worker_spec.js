@@ -1,4 +1,5 @@
 const express = require("express");
+const { Request } = require("node-fetch");
 const { Worker } = require("../worker");
 const { InMemoryKVStore } = require("../in-memory-kv-store");
 
@@ -94,7 +95,7 @@ describe("Workers", () => {
 
   test("It can stub out responses", async () => {
     const worker = new Worker("foo.com", 'addEventListener("fetch", (e) => e.respondWith(new Response("hello")))');
-    const response = await worker.executeFetchEvent("http://foo.com");
+    const response = await worker.executeFetchEvent(new Request("http://foo.com"));
     expect(response.status).toBe(200);
     expect(await response.text()).toBe("hello");
   });
@@ -118,7 +119,7 @@ describe("Workers", () => {
 
     test("It Fetches Correctly", async done => {
       const worker = new Worker(upstreamHost, "", { upstreamHost: upstreamHost });
-      const response = await worker.executeFetchEvent(`http://${upstreamHost}/success`);
+      const response = await worker.executeFetchEvent(new Request(`http://${upstreamHost}/success`));
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("OK");
       done();
@@ -126,7 +127,7 @@ describe("Workers", () => {
 
     test("It does not follow redirects", async done => {
       const worker = new Worker(upstreamHost, "", { upstreamHost: upstreamHost });
-      const response = await worker.executeFetchEvent(`http://${upstreamHost}/redirect`);
+      const response = await worker.executeFetchEvent(new Request(`http://${upstreamHost}/redirect`));
       expect(response.status).toBe(301);
       expect(response.headers.get("Location")).toBe("https://www.google.com/");
       done();
@@ -134,7 +135,7 @@ describe("Workers", () => {
 
     test("The worker forwards the request upstream", async done => {
       const worker = new Worker("foo.com", "", { upstreamHost: upstreamHost });
-      const response = await worker.executeFetchEvent(`http://foo.com/success`);
+      const response = await worker.executeFetchEvent(new Request(`http://foo.com/success`));
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("OK");
       done();
@@ -142,7 +143,7 @@ describe("Workers", () => {
 
     test("The worker does not keeps the host the same", async done => {
       const worker = new Worker("foo.com", "", { upstreamHost: upstreamHost });
-      const response = await worker.executeFetchEvent(`http://foo.com/host`);
+      const response = await worker.executeFetchEvent(new Request(`http://foo.com/host`));
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("foo.com");
       done();
@@ -154,7 +155,7 @@ describe("Workers", () => {
         `addEventListener("fetch", (e) => e.respondWith(fetch("http://${upstreamHost}/host")))`,
         { upstreamHost: null }
       );
-      const response = await worker.executeFetchEvent(`http://foo.com/host`);
+      const response = await worker.executeFetchEvent(new Request(`http://foo.com/host`));
       expect(response.status).toBe(200);
       expect(await response.text()).toBe(upstreamHost);
       done();
@@ -168,7 +169,7 @@ describe("Workers", () => {
         { kvStores: ["MYSTORE"], kvStoreFactory: kvStoreFactory }
       );
 
-      const response = await worker.executeFetchEvent(`http://foo.com/blah`);
+      const response = await worker.executeFetchEvent(new Request(`http://foo.com/blah`));
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("foo");
       expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe("bar");
