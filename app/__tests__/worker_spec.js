@@ -144,39 +144,35 @@ describe("Workers", () => {
       upstreamHost = `127.0.0.1:${upstreamServer.address().port}`;
     });
 
-    test("It Fetches Correctly", async done => {
+    test("It Fetches Correctly", async () => {
       const worker = new Worker(upstreamHost, "", { upstreamHost: upstreamHost });
       const response = await worker.executeFetchEvent(`http://${upstreamHost}/success`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("OK");
-      done();
     });
 
-    test("It does not follow redirects", async done => {
+    test("It does not follow redirects", async () => {
       const worker = new Worker(upstreamHost, "", { upstreamHost: upstreamHost });
       const response = await worker.executeFetchEvent(`http://${upstreamHost}/redirect`);
       expect(response.status).toBe(301);
       expect(response.headers.get("Location")).toBe("https://www.google.com/");
-      done();
     });
 
-    test("The worker forwards the request upstream", async done => {
+    test("The worker forwards the request upstream", async () => {
       const worker = new Worker("foo.com", "", { upstreamHost: upstreamHost });
       const response = await worker.executeFetchEvent(`http://foo.com/success`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("OK");
-      done();
     });
 
-    test("The worker does not keeps the host the same", async done => {
+    test("The worker does not keeps the host the same", async () => {
       const worker = new Worker("foo.com", "", { upstreamHost: upstreamHost });
       const response = await worker.executeFetchEvent(`http://foo.com/host`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe("foo.com");
-      done();
     });
 
-    test("It does not forward to the upstream host if the hostname is not the same", async done => {
+    test("It does not forward to the upstream host if the hostname is not the same", async () => {
       const worker = new Worker(
         "foo.com",
         `addEventListener("fetch", (e) => e.respondWith(fetch("http://${upstreamHost}/host")))`,
@@ -185,10 +181,9 @@ describe("Workers", () => {
       const response = await worker.executeFetchEvent(`http://foo.com/host`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe(upstreamHost);
-      done();
     });
 
-    test("It can save things into the KV store", async done => {
+    test("It can save things into the KV store", async () => {
       const kvStoreFactory = new InMemoryKVStore();
       const worker = new Worker(
         "foo.com",
@@ -202,7 +197,6 @@ describe("Workers", () => {
       expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe("bar");
       await kvStoreFactory.getClient("MYSTORE").delete("foo");
       expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe(undefined);
-      done();
     });
 
     afterAll(async function() {
