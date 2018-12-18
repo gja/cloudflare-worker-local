@@ -2,10 +2,10 @@ const { createContext, Script } = require("vm");
 const { Request, Response, Headers } = require("node-fetch");
 const { URL } = require("url");
 const fetch = require("node-fetch");
-const atob = require('atob');
-const btoa = require('btoa');
-const crypto = new (require('node-webcrypto-ossl'))();
-const { TextDecoder, TextEncoder } = require('util');
+const atob = require("atob");
+const btoa = require("btoa");
+const crypto = new (require("node-webcrypto-ossl"))();
+const { TextDecoder, TextEncoder } = require("util");
 
 function buildKVStores(kvStoreFactory, kvStores) {
   return kvStores.reduce((acc, name) => {
@@ -30,7 +30,19 @@ class Worker {
   }
 
   evaluateWorkerContents(workerContents, kvStores) {
-    const context = { Request, Response, Headers, URL, URLSearchParams, atob, btoa, crypto, TextDecoder, TextEncoder, console };
+    const context = {
+      Request,
+      Response,
+      Headers,
+      URL,
+      URLSearchParams,
+      atob,
+      btoa,
+      crypto,
+      TextDecoder,
+      TextEncoder,
+      console
+    };
     const script = new Script(workerContents);
     script.runInContext(
       createContext(
@@ -60,17 +72,16 @@ class Worker {
   }
 
   async executeFetchEvent(url, opts) {
-    let response = null;
+    let responsePromise = null;
     let waitUntil = [];
     this.triggerEvent("fetch", {
       type: "fetch",
       request: new Request(url, { redirect: "manual", ...opts }),
-      respondWith: r => (response = r),
+      respondWith: r => (responsePromise = r),
       waitUntil: e => waitUntil.push(e)
     });
-    const r = await Promise.resolve(response);
-    await Promise.all(waitUntil);
-    return r;
+    const [response, ...others] = await Promise.all([responsePromise].concat(waitUntil));
+    return response;
   }
 
   addEventListener(event, listener) {
