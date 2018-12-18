@@ -9,7 +9,8 @@ async function callWorker(worker, req, res) {
   const response = await worker.executeFetchEvent(url, {
     headers: req.headers,
     method: req.method,
-    body: ["GET", "HEAD"].includes(req.method) ? undefined : req.body
+    body: ["GET", "HEAD"].includes(req.method) ? undefined : req.body,
+    ip: req.connection.remoteAddress.split(":").pop()
   });
   const data = await response.arrayBuffer();
 

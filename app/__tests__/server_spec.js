@@ -50,4 +50,14 @@ describe("server", () => {
       .expect(200, "goodbye")
       .then(() => done());
   });
+
+  it("passes the current ip onwards", done => {
+    const app = createApp(
+      'addEventListener("fetch", (e) => e.respondWith(new Response(e.request.headers.get("X-Forwarded-For"))))'
+    );
+    supertest(app)
+      .get("/some-route")
+      .expect(200, "127.0.0.1")
+      .then(() => done());
+  });
 });

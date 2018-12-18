@@ -14,12 +14,33 @@ function buildKVStores(kvStoreFactory, kvStores) {
   }, {});
 }
 
+function chomp(str) {
+  return str.substr(0, str.length - 1);
+}
+
+function buildRequest(url, opts) {
+  const { country = "DEV", ip = "127.0.0.1", ray = "0000000000000000", ...requestOpts } = opts;
+  const request = new Request(url, { redirect: "manual", ...requestOpts });
+  const headers = request.headers;
+  const parsedURL = new URL(request.url);
+
+  // CF Specific Headers
+  headers.set("CF-Ray", ray);
+  headers.set("CF-Visitor", JSON.stringify({ scheme: chomp(parsedURL.protocol) }));
+  headers.set("CF-IPCountry", country);
+  headers.set("CF-Connecting-IP", ip);
+  headers.set("X-Real-IP", ip);
+
+  // General Proxy Headers
+  headers.append("X-Forwarded-For", ip);
+  headers.append("X-Forwarded-Proto", chomp(parsedURL.protocol));
+
+  return new Request(request, { headers });
+}
+
 class Worker {
-  constructor(
-    origin,
-    workerContents,
-    { upstreamHost, kvStores = [], kvStoreFactory = require("./in-memory-kv-store") } = {}
-  ) {
+  constructor(origin, workerContents, opts = {}) {
+    const { upstreamHost, kvStores = [], kvStoreFactory = require("./in-memory-kv-store") } = opts;
     this.listeners = {
       fetch: e => e.respondWith(this.fetchUpstream(e.request))
     };
@@ -71,12 +92,12 @@ class Worker {
     return fetch(request);
   }
 
-  async executeFetchEvent(url, opts) {
+  async executeFetchEvent(url, opts = {}) {
     let responsePromise = null;
     let waitUntil = [];
     this.triggerEvent("fetch", {
       type: "fetch",
-      request: new Request(url, { redirect: "manual", ...opts }),
+      request: buildRequest(url, opts),
       respondWith: r => (responsePromise = r),
       waitUntil: e => waitUntil.push(e)
     });
