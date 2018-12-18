@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.6.0"></a>
+# [1.6.0](https://github.com/gja/cloudflare-worker-local/compare/v1.5.0...v1.6.0) (2018-12-18)
+
+
+### Features
+
+* **Worker:** Supporting most CF Headers ([#22](https://github.com/gja/cloudflare-worker-local/issues/22)) ([99e5db7](https://github.com/gja/cloudflare-worker-local/commit/99e5db7)), closes [#21](https://github.com/gja/cloudflare-worker-local/issues/21)
+
+
+
 <a name="1.5.0"></a>
 # [1.5.0](https://github.com/gja/cloudflare-worker-local/compare/v1.4.0...v1.5.0) (2018-12-06)
 
