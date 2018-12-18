@@ -1,6 +1,7 @@
 const express = require("express");
 const { Worker } = require("../worker");
 const { InMemoryKVStore } = require("../in-memory-kv-store");
+const { Headers } = require("node-fetch");
 
 describe("Workers", () => {
   test("It Can Create and Execute a Listener", () => {
@@ -9,9 +10,9 @@ describe("Workers", () => {
   });
 
   describe("Ensuring Things are in scope", () => {
-    test('It has self global', () => {
-      const worker = new Worker('foo.com', `addEventListener('test', () => self)`);
-      const self = worker.triggerEvent('test');
+    test("It has self global", () => {
+      const worker = new Worker("foo.com", `addEventListener('test', () => self)`);
+      const self = worker.triggerEvent("test");
       expect(self).toBeDefined();
     });
 
@@ -36,37 +37,34 @@ describe("Workers", () => {
       expect(url.searchParams.get("foo")).toBe("bar");
     });
 
-    test('It has support for URLSearchParams', () => {
-      const worker = new Worker(
-        'foo.com',
-        `addEventListener('test', () => new URLSearchParams({ foo: 'bar' }))`
-      );
-      const params = worker.triggerEvent('test');
-      expect(params.has('foo')).toBe(true);
-      expect(params.get('foo')).toBe('bar');
-      expect(params.has('baz')).toBe(false);
-      expect(params.get('baz')).toBe(null);
+    test("It has support for URLSearchParams", () => {
+      const worker = new Worker("foo.com", `addEventListener('test', () => new URLSearchParams({ foo: 'bar' }))`);
+      const params = worker.triggerEvent("test");
+      expect(params.has("foo")).toBe(true);
+      expect(params.get("foo")).toBe("bar");
+      expect(params.has("baz")).toBe(false);
+      expect(params.get("baz")).toBe(null);
     });
 
-    test('It has support for base64 encoding APIs', () => {
+    test("It has support for base64 encoding APIs", () => {
       const worker = new Worker(
-        'foo.com',
+        "foo.com",
         `addEventListener('test', () => ({ encoded: btoa('test'), decoded: atob('dGVzdA==') }))`
       );
-      const { encoded, decoded } = worker.triggerEvent('test');
-      expect(encoded).toBe('dGVzdA==');
-      expect(decoded).toBe('test')
+      const { encoded, decoded } = worker.triggerEvent("test");
+      expect(encoded).toBe("dGVzdA==");
+      expect(decoded).toBe("test");
     });
 
-    test('It has support for crypto and Text encoding APIs', async () => {
+    test("It has support for crypto and Text encoding APIs", async () => {
       const worker = new Worker(
-        'foo.com',
+        "foo.com",
         `addEventListener('test', async () => {
           const password = 'test';
           const plainText = 'foo';
           const ptUtf8 = new TextEncoder().encode(plainText);
           const pwUtf8 = new TextEncoder().encode(password);
-          const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8); 
+          const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);
           const iv = crypto.getRandomValues(new Uint8Array(12));
           const alg = { name: 'AES-GCM', iv: iv };
           const encKey = await crypto.subtle.importKey('raw', pwHash, alg, false, ['encrypt']);
@@ -77,18 +75,15 @@ describe("Workers", () => {
           return plainText === plainText2;
         })`
       );
-      const decrypted = await worker.triggerEvent('test');
+      const decrypted = await worker.triggerEvent("test");
       expect(decrypted).toBe(true);
     });
 
-    test('It has support for the console API', () => {
-      const worker = new Worker(
-        'foo.com',
-        `addEventListener('test', () => console.log('test'))`
-      );
-      const spy = jest.spyOn(console, 'log');
-      worker.triggerEvent('test');
-      expect(spy).toHaveBeenCalledWith('test');
+    test("It has support for the console API", () => {
+      const worker = new Worker("foo.com", `addEventListener('test', () => console.log('test'))`);
+      const spy = jest.spyOn(console, "log");
+      worker.triggerEvent("test");
+      expect(spy).toHaveBeenCalledWith("test");
     });
   });
 
@@ -97,6 +92,39 @@ describe("Workers", () => {
     const response = await worker.executeFetchEvent("http://foo.com");
     expect(response.status).toBe(200);
     expect(await response.text()).toBe("hello");
+  });
+
+  describe("Cloudflare Headers", () => {
+    it("Adds cloudflare headers", async () => {
+      const worker = new Worker(
+        "foo.com",
+        'addEventListener("fetch", (e) => e.respondWith(new Response("hello", {headers: e.request.headers})))'
+      );
+      const response = await worker.executeFetchEvent("http://foo.com");
+      expect(response.headers.get("CF-Ray")).toBe("0000000000000000");
+      expect(response.headers.get("CF-Visitor")).toBe('{"scheme":"http"}');
+      expect(response.headers.get("CF-IPCountry")).toBe("DEV");
+      expect(response.headers.get("CF-Connecting-IP")).toBe("127.0.0.1");
+      expect(response.headers.get("X-Real-IP")).toBe("127.0.0.1");
+
+      expect(response.headers.get("X-Forwarded-For")).toBe("127.0.0.1");
+      expect(response.headers.get("X-Forwarded-Proto")).toBe("http");
+    });
+
+    it("correctly appends to X-Forwarded-*", async () => {
+      const worker = new Worker(
+        "foo.com",
+        'addEventListener("fetch", (e) => e.respondWith(new Response("hello", {headers: e.request.headers})))'
+      );
+      const response = await worker.executeFetchEvent("http://foo.com", {
+        headers: new Headers({
+          "X-Forwarded-For": "8.8.8.8",
+          "X-Forwarded-Proto": "https"
+        })
+      });
+      expect(response.headers.get("X-Forwarded-For")).toBe("8.8.8.8, 127.0.0.1");
+      expect(response.headers.get("X-Forwarded-Proto")).toBe("https, http");
+    });
   });
 
   describe("Fetch Behavior", () => {
