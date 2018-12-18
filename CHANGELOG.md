@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Features
 
 * **Worker:** Supporting most CF Headers ([#22](https://github.com/gja/cloudflare-worker-local/issues/22)) ([99e5db7](https://github.com/gja/cloudflare-worker-local/commit/99e5db7)), closes [#21](https://github.com/gja/cloudflare-worker-local/issues/21)
-
+* **InMemoryKVStore:** Delete Items from InMemoryKVStore ([#20](https://github.com/gja/cloudflare-worker-local/pull/20))
 
 
 <a name="1.5.0"></a>
