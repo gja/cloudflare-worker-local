@@ -1,7 +1,7 @@
 const { createApp } = require("./server");
 const http = require("http");
 
-function createTestApp(workerContent, upstreamApp, opts) {
+function createTestApp(workerContent, upstreamApp, opts = {}) {
   const app = createApp(workerContent, opts);
   const server = http.createServer(app);
   const upstreamServer = http.createServer(upstreamApp);
