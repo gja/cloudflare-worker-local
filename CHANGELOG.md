@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.7.0"></a>
+# [1.7.0](https://github.com/gja/cloudflare-worker-local/compare/v1.6.0...v1.7.0) (2018-12-28)
+
+
+### Features
+
+* **TestWorkers:** Ability to Unit Test Workers ([#23](https://github.com/gja/cloudflare-worker-local/issues/23)) ([dc33dff](https://github.com/gja/cloudflare-worker-local/commit/dc33dff))
+
+
+
 <a name="1.6.0"></a>
 # [1.6.0](https://github.com/gja/cloudflare-worker-local/compare/v1.5.0...v1.6.0) (2018-12-18)
 
