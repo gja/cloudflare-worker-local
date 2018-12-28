@@ -37,5 +37,8 @@
   },
   "bin": {
     "cloudflare-worker-local": "./cli.js"
+  },
+  "jest": {
+    "testPathIgnorePatterns": ["/node_modules/", "/examples"]
   }
 }
