@@ -39,6 +39,9 @@
     "cloudflare-worker-local": "./cli.js"
   },
   "jest": {
-    "testPathIgnorePatterns": ["/node_modules/", "/examples"]
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/examples"
+    ]
   }
 }
