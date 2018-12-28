@@ -43,6 +43,10 @@ function createApp(workerContent, opts) {
     workerContent = contents;
     workersByOrigin = {};
   };
+  app.updateOpts = newOpts => {
+    opts = Object.assign({}, opts, newOpts);
+    workersByOrigin = {};
+  };
 
   return app;
 }

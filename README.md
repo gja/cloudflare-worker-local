@@ -1,5 +1,5 @@
 # cloudflare-worker-local
-WIP: Run a Cloudflare Worker Locally
+Run (or test) a Cloudflare Worker Locally
 
 ## Running
 
@@ -18,6 +18,10 @@ It is possible to use nodemon to automatically reload the worker
 $ npm install -g nodemon
 $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-local /path/to/worker.js localhost:3000 4000'
 ```
+
+## Unit Testing a Cloudflare Worker
+
+`cloudflare-worker-local` can be used to unit test a cloudflare worker. Please see [This Example](examples/unit-test-a-worker)
 
 ## Things that are supported (and in scope)
 
