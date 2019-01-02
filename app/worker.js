@@ -7,13 +7,6 @@ const btoa = require("btoa");
 const crypto = new (require("node-webcrypto-ossl"))();
 const { TextDecoder, TextEncoder } = require("util");
 
-function buildKVStores(kvStoreFactory, kvStores) {
-  return kvStores.reduce((acc, name) => {
-    acc[name] = kvStoreFactory.getClient(name);
-    return acc;
-  }, {});
-}
-
 function chomp(str) {
   return str.substr(0, str.length - 1);
 }
@@ -40,14 +33,14 @@ function buildRequest(url, opts) {
 
 class Worker {
   constructor(origin, workerContents, opts = {}) {
-    const { upstreamHost, kvStores = [], kvStoreFactory = require("./in-memory-kv-store") } = opts;
+    const { upstreamHost, kvStores = {} } = opts;
     this.listeners = {
       fetch: e => e.respondWith(this.fetchUpstream(e.request))
     };
     this.upstreamHost = upstreamHost;
     this.origin = origin;
 
-    this.evaluateWorkerContents(workerContents, buildKVStores(kvStoreFactory, kvStores));
+    this.evaluateWorkerContents(workerContents, kvStores);
   }
 
   evaluateWorkerContents(workerContents, kvStores) {

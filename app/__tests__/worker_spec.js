@@ -188,7 +188,7 @@ describe("Workers", () => {
       const worker = new Worker(
         "foo.com",
         `addEventListener("fetch", (e) => {e.respondWith(new Response("foo")); e.waitUntil(MYSTORE.put("foo", "bar"))})`,
-        { kvStores: ["MYSTORE"], kvStoreFactory: kvStoreFactory }
+        { kvStores: { MYSTORE: kvStoreFactory.getClient("MYSTORE") } }
       );
 
       const response = await worker.executeFetchEvent(`http://foo.com/blah`);
