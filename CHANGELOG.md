@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.8.0"></a>
+# [1.8.0](https://github.com/gja/cloudflare-worker-local/compare/v1.7.0...v1.8.0) (2019-01-02)
+
+
+### Features
+
+* **KVStore:** Expose the KV Store from create app ([#24](https://github.com/gja/cloudflare-worker-local/issues/24)) ([5844ace](https://github.com/gja/cloudflare-worker-local/commit/5844ace))
+
+
+
 <a name="1.7.0"></a>
 # [1.7.0](https://github.com/gja/cloudflare-worker-local/compare/v1.6.0...v1.7.0) (2018-12-28)
 
