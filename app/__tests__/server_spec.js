@@ -51,4 +51,19 @@ describe("server", () => {
       .get("/some-route")
       .expect(200, "127.0.0.1");
   });
+
+  it("creates stores and passes it to the worker", async () => {
+    const app = createApp(
+      'addEventListener("fetch", (e) => e.respondWith(MYSTORE.get("key").then(v => new Response(v))))',
+      {
+        kvStores: ["MYSTORE"]
+      }
+    );
+
+    await app.stores.MYSTORE.put("key", "value");
+
+    await supertest(app)
+      .get("/some-route")
+      .expect(200, "value");
+  });
 });

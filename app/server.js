@@ -21,16 +21,22 @@ async function callWorker(worker, req, res) {
   res.end(Buffer.from(data), "binary");
 }
 
-function createApp(workerContent, opts) {
+function buildKVStores(kvStoreFactory, kvStores) {
+  return kvStores.reduce((acc, name) => {
+    acc[name] = kvStoreFactory.getClient(name);
+    return acc;
+  }, {});
+}
+
+function createApp(workerContent, opts = {}) {
   let workersByOrigin = {};
-  const kvStoreFactory = new InMemoryKVStore();
+  const kvStores = buildKVStores(new InMemoryKVStore(), opts.kvStores || []);
   const app = express();
   app.use(bodyParser.raw({ type: "*/*" }));
   app.use(async (req, res) => {
     try {
       const origin = req.headers.host;
-      workersByOrigin[origin] =
-        workersByOrigin[origin] || new Worker(origin, workerContent, { kvStoreFactory, ...opts });
+      workersByOrigin[origin] = workersByOrigin[origin] || new Worker(origin, workerContent, { ...opts, kvStores });
       const worker = workersByOrigin[origin];
       await callWorker(worker, req, res);
     } catch (e) {
@@ -47,6 +53,7 @@ function createApp(workerContent, opts) {
     opts = Object.assign({}, opts, newOpts);
     workersByOrigin = {};
   };
+  app.stores = kvStores;
 
   return app;
 }
