@@ -1,5 +1,5 @@
 # cloudflare-worker-local
-Run (or test) a Cloudflare Worker Locally
+Run (or test) a Cloudflare Worker Locally. If you are looking for a project that will quickly help you bootstrap your worker, take a look at [create-cloudflare-worker](https://github.com/gja/create-cloudflare-worker)
 
 ## Running
 
@@ -21,7 +21,7 @@ $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-l
 
 ## Unit Testing a Cloudflare Worker
 
-`cloudflare-worker-local` can be used to unit test a cloudflare worker. Please see [This Example](examples/unit-test-a-worker)
+`cloudflare-worker-local` can be used to unit test a cloudflare worker. Please see [This Example](examples/unit-test-a-worker). You may also be interested in [create-cloudflare-worker](https://github.com/gja/create-cloudflare-worker)
 
 ## Things that are supported (and in scope)
 
