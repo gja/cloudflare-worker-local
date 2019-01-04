@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.9.0"></a>
+# [1.9.0](https://github.com/gja/cloudflare-worker-local/compare/v1.8.1...v1.9.0) (2019-01-04)
+
+
+### Features
+
+* **Worker:** waitUntil and respondWith must be bound to e in order to work ([06bc243](https://github.com/gja/cloudflare-worker-local/commit/06bc243))
+
+
+
 <a name="1.8.1"></a>
 ## [1.8.1](https://github.com/gja/cloudflare-worker-local/compare/v1.8.0...v1.8.1) (2019-01-04)
 
