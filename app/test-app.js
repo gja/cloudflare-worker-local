@@ -17,6 +17,8 @@ function createTestApp(workerContent, upstreamApp, opts = {}) {
     return http.Server.prototype.close.apply(this, arguments);
   };
 
+  server.stores = app.stores;
+
   return server;
 }
 
