@@ -31,6 +31,28 @@ function buildRequest(url, opts) {
   return new Request(request, { headers });
 }
 
+class FetchEvent {
+  constructor(request) {
+    this.responsePromise = null;
+    this.waitEvents = [];
+    this.type = "fetch";
+    this.request = request;
+  }
+
+  waitUntil(e) {
+    this.waitEvents.push(e);
+  }
+
+  respondWith(e) {
+    this.responsePromise = e;
+  }
+
+  async __response() {
+    const [response, ...others] = await Promise.all([this.responsePromise].concat(this.waitEvents));
+    return response;
+  }
+}
+
 class Worker {
   constructor(origin, workerContents, opts = {}) {
     const { upstreamHost, kvStores = {} } = opts;
@@ -86,16 +108,9 @@ class Worker {
   }
 
   async executeFetchEvent(url, opts = {}) {
-    let responsePromise = null;
-    let waitUntil = [];
-    this.triggerEvent("fetch", {
-      type: "fetch",
-      request: buildRequest(url, opts),
-      respondWith: r => (responsePromise = r),
-      waitUntil: e => waitUntil.push(e)
-    });
-    const [response, ...others] = await Promise.all([responsePromise].concat(waitUntil));
-    return response;
+    const fetchEvent = new FetchEvent(buildRequest(url, opts));
+    this.triggerEvent("fetch", fetchEvent);
+    return fetchEvent.__response();
   }
 
   addEventListener(event, listener) {
