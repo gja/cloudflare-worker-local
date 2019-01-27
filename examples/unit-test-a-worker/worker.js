@@ -1,3 +1,6 @@
+// Add any more global vars (like Request, Response) to the below list as they are used
+/* global addEventListener fetch Response Headers */
+
 addEventListener("fetch", e => {
   e.respondWith(fetchAndAddHeader(e.request));
 });
@@ -5,11 +8,17 @@ addEventListener("fetch", e => {
 async function fetchAndAddHeader(request) {
   const response = await fetch(request);
 
+  const headers = new Headers(response.headers);
+  
   if (response.status === 200) {
-    response.headers.set("Foo", "Bar");
+    headers.set("Foo", "Bar");
   } else {
-    response.headers.set("Foo", "Not Bar");
+    headers.set("Foo", "Not Bar");
   }
 
-  return response;
+  return new Response(response.body, {
+    headers: headers,
+    status: response.status,
+    statusText: response.statusText,
+  });
 }
