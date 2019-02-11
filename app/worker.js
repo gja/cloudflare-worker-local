@@ -67,17 +67,33 @@ class Worker {
 
   evaluateWorkerContents(workerContents, kvStores) {
     const context = {
+      // From fetch
       Request,
       Response,
       Headers,
+
+      // URL Standards
       URL,
       URLSearchParams,
+
+      // bas64
       atob,
       btoa,
+
+      // Crypto
       crypto,
       TextDecoder,
       TextEncoder,
-      console
+
+      // Debugging
+      console,
+
+      // Async
+      setTimeout,
+      setInterval,
+      clearTimeout,
+      clearInterval,
+
     };
     const script = new Script(workerContents);
     script.runInContext(
