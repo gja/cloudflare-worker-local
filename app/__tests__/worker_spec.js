@@ -56,6 +56,15 @@ describe("Workers", () => {
       expect(decoded).toBe("test");
     });
 
+    test("It has support for delayed promises with setTimeout", async () => {
+      const worker = new Worker(
+        "foo.com",
+        `addEventListener('test', () => new Promise(resolve => setTimeout(() => resolve(42), 100)))`
+      );
+      const result = await worker.triggerEvent("test");
+      expect(result).toBe(42);
+    })
+
     test("It has support for crypto and Text encoding APIs", async () => {
       const worker = new Worker(
         "foo.com",
