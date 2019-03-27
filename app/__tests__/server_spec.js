@@ -66,4 +66,20 @@ describe("server", () => {
       .get("/some-route")
       .expect(200, "value");
   });
+
+  it("allows big post request", async () => {
+    let body = "x"
+    for (let i = 0; i < 20; i++) {
+      body = body + body
+    }
+
+    const app = createApp(
+      'addEventListener("fetch", (e) => e.respondWith(e.request.text().then(text => new Response(`${e.request.method}`))))'
+    );
+
+    await supertest(app)
+      .post("/some-route")
+      .send(body)
+      .expect(200, 'POST');
+  });
 });
