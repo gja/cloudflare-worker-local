@@ -32,7 +32,7 @@ function createApp(workerContent, opts = {}) {
   let workersByOrigin = {};
   const kvStores = buildKVStores(new InMemoryKVStore(), opts.kvStores || []);
   const app = express();
-  app.use(bodyParser.raw({ type: "*/*" }));
+  app.use(bodyParser.raw({ type: "*/*", limit: "100GB" }));
   app.use(async (req, res) => {
     try {
       const origin = req.headers.host;
