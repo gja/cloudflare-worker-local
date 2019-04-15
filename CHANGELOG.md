@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.10.0"></a>
+# [1.10.0](https://github.com/gja/cloudflare-worker-local/compare/v1.9.0...v1.10.0) (2019-04-15)
+
+
+### Bug Fixes
+
+* **Example:** Apparently response headers are immutable. Closes [[#27](https://github.com/gja/cloudflare-worker-local/issues/27)] ([#28](https://github.com/gja/cloudflare-worker-local/issues/28)) ([31cb10b](https://github.com/gja/cloudflare-worker-local/commit/31cb10b))
+
+
+### Features
+
+* **Worker:** Supporting callback functions like setTimeout, setInterval ([#30](https://github.com/gja/cloudflare-worker-local/issues/30)) ([0abbaec](https://github.com/gja/cloudflare-worker-local/commit/0abbaec)), closes [#29](https://github.com/gja/cloudflare-worker-local/issues/29)
+* Reduce post limit, fixes [#31](https://github.com/gja/cloudflare-worker-local/issues/31) ([#32](https://github.com/gja/cloudflare-worker-local/issues/32)) ([000c435](https://github.com/gja/cloudflare-worker-local/commit/000c435))
+
+
+
 <a name="1.9.0"></a>
 # [1.9.0](https://github.com/gja/cloudflare-worker-local/compare/v1.8.1...v1.9.0) (2019-01-04)
 
