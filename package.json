@@ -27,8 +27,8 @@
     "node-webcrypto-ossl": "^1.0.38"
   },
   "devDependencies": {
-    "jest": "^23.6.0",
-    "jest-junit": "^5.2.0",
+    "jest": "^24.7.1",
+    "jest-junit": "^6.3.0",
     "standard-version": "^4.4.0",
     "supertest": "^3.3.0"
   },
