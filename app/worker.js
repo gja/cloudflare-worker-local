@@ -120,6 +120,11 @@ class Worker {
       request.headers.set("Host", originalHost);
     }
 
+    request.headers.set("CF-CACHE-TTL", init.cf && init.cf.cacheTtl);
+    request.headers.set("CF-CACHE-TTL-BY-STATUS", init.cf && init.cf.cacheTtlByStatus);
+    request.headers.set("CF-CACHE-KEY", init.cf && init.cf.cacheKey);
+    request.headers.set("CF-CACHE-EVERYTHING", init.cf && init.cf.cacheEverything);
+
     return fetch(request);
   }
 
