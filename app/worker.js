@@ -120,10 +120,13 @@ class Worker {
       request.headers.set("Host", originalHost);
     }
 
-    request.headers.set("CF-CACHE-TTL", init.cf && init.cf.cacheTtl);
-    request.headers.set("CF-CACHE-TTL-BY-STATUS", init.cf && init.cf.cacheTtlByStatus);
-    request.headers.set("CF-CACHE-KEY", init.cf && init.cf.cacheKey);
-    request.headers.set("CF-CACHE-EVERYTHING", init.cf && init.cf.cacheEverything);
+    if (init && init.cf) {
+      for (var key in init.cf) {
+        var val = init.cf[key];
+        key = key.split(/(?=[A-Z])/).join('-').toUpperCase();
+        request.headers.set(`CF-${key}`, val);
+      }
+    }
 
     return fetch(request);
   }
