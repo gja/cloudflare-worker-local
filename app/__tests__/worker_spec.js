@@ -145,6 +145,7 @@ describe("Workers", () => {
       upstreamApp.get("/success", (req, res) => res.send("OK"));
       upstreamApp.get("/redirect", (req, res) => res.redirect(301, "https://www.google.com"));
       upstreamApp.get("/host", (req, res) => res.send(req.headers.host));
+      upstreamApp.get("/cacheable", (req, res) => res.set(req.headers).send());
 
       await new Promise(resolve => {
         upstreamServer = upstreamApp.listen(resolve);
@@ -190,6 +191,21 @@ describe("Workers", () => {
       const response = await worker.executeFetchEvent(`http://foo.com/host`);
       expect(response.status).toBe(200);
       expect(await response.text()).toBe(upstreamHost);
+    });
+
+    it("It forwards cache control headers", async () => {
+      const worker = new Worker(
+        "foo.com",
+        `addEventListener("fetch", (e) => e.respondWith(fetch("http://${upstreamHost}/cacheable", { cf: {
+          cacheKey: "foo",
+          cacheEverything: true,
+          cacheTtl: 300
+        } })))`
+      );
+      const response = await worker.executeFetchEvent("http://foo.com/cacheable");
+      expect(await response.headers.get("cf-cache-key")).toBe("foo");
+      expect(await response.headers.get("cf-cache-everything")).toBe("true");
+      expect(await response.headers.get("cf-cache-ttl")).toBe("300");
     });
 
     test("It can save things into the KV store", async () => {
