@@ -47,6 +47,10 @@ class FetchEvent {
     this.responsePromise = e;
   }
 
+  passThroughOnException(e) {
+    // do nothing
+  }
+
   async __response() {
     const [response, ...others] = await Promise.all([this.responsePromise].concat(this.waitEvents));
     return response;
