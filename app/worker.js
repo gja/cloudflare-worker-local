@@ -120,6 +120,14 @@ class Worker {
       request.headers.set("Host", originalHost);
     }
 
+    if (init && init.cf) {
+      for (var key in init.cf) {
+        var val = init.cf[key];
+        key = key.split(/(?=[A-Z])/).join('-').toUpperCase();
+        request.headers.set(`CF-${key}`, val);
+      }
+    }
+
     return fetch(request);
   }
 
