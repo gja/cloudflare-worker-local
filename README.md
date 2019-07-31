@@ -32,6 +32,7 @@ $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-l
 * btoa / atob
 * crypto.subtle
 * Cloudflare key value store if you pass in the KV_NAMESPACE environment variable
+* Cloudflare [event.passThroughOnException()](https://workers.cloudflare.com/docs/reference/workers-concepts/fetch-event-lifecycle/#passthroughonexception) for runtime exception handling
 * ... this list should probably have more things
 
 ## Contributors
