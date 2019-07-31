@@ -138,9 +138,11 @@ class Worker {
     try {
       this.triggerEvent("fetch", fetchEvent);
       return fetchEvent.__response();
-    } catch (exception) {
+    } catch (ex) {
       if (fetchEvent && fetchEvent.exceptionHandler && fetchEvent.exceptionHandler instanceof Function) {
         return fetchEvent.exceptionHandler();
+      } else {
+        throw ex;
       }
     }
   }
