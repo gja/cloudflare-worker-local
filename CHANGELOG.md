@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.11.0"></a>
+# [1.11.0](https://github.com/gja/cloudflare-worker-local/compare/v1.10.0...v1.11.0) (2019-08-01)
+
+
+### Features
+
+* add FetchEvent.passThroughOnException() ([#37](https://github.com/gja/cloudflare-worker-local/issues/37)) ([3e21659](https://github.com/gja/cloudflare-worker-local/commit/3e21659))
+* Set cf values to request headers for local debugging ([#35](https://github.com/gja/cloudflare-worker-local/issues/35)) ([8d78e0a](https://github.com/gja/cloudflare-worker-local/commit/8d78e0a))
+
+
+
 <a name="1.10.0"></a>
 # [1.10.0](https://github.com/gja/cloudflare-worker-local/compare/v1.9.0...v1.10.0) (2019-04-15)
 
