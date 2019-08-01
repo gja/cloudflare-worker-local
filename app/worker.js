@@ -37,6 +37,7 @@ class FetchEvent {
     this.waitEvents = [];
     this.type = "fetch";
     this.request = request;
+    this.exceptionHandler = false;
   }
 
   waitUntil(e) {
@@ -47,10 +48,19 @@ class FetchEvent {
     this.responsePromise = e;
   }
 
+  passThroughOnException() {
+    this.exceptionHandler = this.__originResponse;
+  }
+
   async __response() {
     const [response, ...others] = await Promise.all([this.responsePromise].concat(this.waitEvents));
     return response;
   }
+
+  async __originResponse() {
+    const response = await fetch(this.request);
+    return response;
+  };
 }
 
 class Worker {
@@ -133,8 +143,16 @@ class Worker {
 
   async executeFetchEvent(url, opts = {}) {
     const fetchEvent = new FetchEvent(buildRequest(url, opts));
-    this.triggerEvent("fetch", fetchEvent);
-    return fetchEvent.__response();
+    try {
+      this.triggerEvent("fetch", fetchEvent);
+      return fetchEvent.__response();
+    } catch (ex) {
+      if (fetchEvent && fetchEvent.exceptionHandler && fetchEvent.exceptionHandler instanceof Function) {
+        return fetchEvent.exceptionHandler();
+      } else {
+        throw ex;
+      }
+    }
   }
 
   addEventListener(event, listener) {

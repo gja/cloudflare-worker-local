@@ -224,6 +224,29 @@ describe("Workers", () => {
       expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe(undefined);
     });
 
+    test("It fetches directly from origin is passThroughOnException() is called", async () => {
+      const worker = new Worker(
+        upstreamHost,
+        `addEventListener("fetch", (e) => {e.passThroughOnException(); throw "An exception from worker!"})`,
+        { upstreamHost: upstreamHost }
+      );
+      const response = await worker.executeFetchEvent(`http://${upstreamHost}/success`);
+      expect(response.status).toBe(200);
+    });
+
+    test("It does not quietly eat runtion exceptions", async () => {
+      const worker = new Worker(
+        upstreamHost,
+        `addEventListener("fetch", (e) => {throw "An exception from worker!"})`,
+        { upstreamHost: upstreamHost }
+      );
+      try {
+        const response = await worker.executeFetchEvent(`http://${upstreamHost}/success`);
+      } catch(ex) {
+        expect(ex).toBe("An exception from worker!");
+      }
+    });
+
     afterAll(async function() {
       upstreamServer.close();
     });
