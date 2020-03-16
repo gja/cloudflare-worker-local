@@ -51,3 +51,17 @@ $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-l
 
 * NUM_WORKERS - Specifies the number of node workers (default 1, to get KV Working in memory)
 * KV_NAMESPACES - A comma separated list of keyspaces. (ex: MY_STORE,ANOTHER_STORE)
+
+## CloudFlare KV Store emulation using Minio or any S3 compatible service
+
+To enable Minio as the KV store simply provide these options as environment variables:
+MINIO_ENDPOINT, MINIO_ACCESS_KEY, and MINIO_SECRET_KEY
+
+```shell script
+$ MINIO_ENDPOINT="localhost" MINIO_ACCESS_KEY="my_access_key" MINIO_SECRET_KEY="my_secret" cloudflare-worker-local /path/to/worker.js localhost:3000 4000
+```
+
+Optionally, these variables are available as well: 
+MINIO_PORT, MINIO_USE_SSL, MINIO_REGION, MINIO_TRANSPORT, MINIO_SESSIONTOKEN, and MINIO_PARTSIZE 
+
+See [the Minio documentation](https://docs.min.io/docs/javascript-client-api-reference.html) for details on the various parameters.

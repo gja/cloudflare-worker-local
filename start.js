@@ -2,9 +2,17 @@ const cluster = require("cluster");
 const process = require("process");
 const fs = require("fs");
 
-if (process.argv.length != 5) {
+const { InMemoryKVStore } = require("./app/in-memory-kv-store");
+
+if (process.argv.length !== 5) {
   console.log("Usage: cloudflare-worker-local /path/to/worker.js host.to.forward.request.to:3000 <port-to-run-on>");
   process.exit(-1);
+}
+
+let kvStore = ()=>new InMemoryKVStore();
+if (process.env.MINIO_ENDPOINT) {
+  const { MinioKVStore, Minio, getEnvOpts } = require('./app/minio-kv-store');
+  kvStore = ()=>new MinioKVStore(new Minio.Client(getEnvOpts(process.env)));
 }
 
 if (cluster.isMaster) {
@@ -25,7 +33,7 @@ if (cluster.isMaster) {
 } else {
   const { createApp } = require(".");
   const port = process.argv[4];
-  const opts = { upstreamHost: process.argv[3], kvStores: (process.env.KV_NAMESPACES || "").split(",") };
+  const opts = { upstreamHost: process.argv[3], kvStores: (process.env.KV_NAMESPACES || "").split(","), kvStore };
   const app = createApp(fs.readFileSync(process.argv[2]), opts);
 
   process.on("SIGHUP", () => {

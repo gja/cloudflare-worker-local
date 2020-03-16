@@ -24,7 +24,10 @@
     "btoa": "^1.2.1",
     "express": "^4.16.4",
     "node-fetch": "^2.3.0",
-    "node-webcrypto-ossl": "^1.0.38"
+    "node-webcrypto-ossl": "^1.0.48"
+  },
+  "optionalDependencies": {
+    "minio": "^7.0.15"
   },
   "devDependencies": {
     "jest": "^24.7.1",
