@@ -1,9 +1,9 @@
 const cluster = require("cluster");
 const process = require("process");
-const fs = require("fs");
+const wrangler = require("./lib/wrangler");
 
-if (process.argv.length != 5) {
-  console.log("Usage: cloudflare-worker-local /path/to/worker.js host.to.forward.request.to:3000 <port-to-run-on>");
+if (process.argv.length < 5) {
+  console.log("Usage: cloudflare-worker-local /path/to/worker.js host.to.forward.request.to:3000 <port-to-run-on> [/path/to/wrangler.toml [env]]");
   process.exit(-1);
 }
 
@@ -25,7 +25,16 @@ if (cluster.isMaster) {
 } else {
   const { createApp } = require(".");
   const port = process.argv[4];
-  const opts = { upstreamHost: process.argv[3], kvStores: (process.env.KV_NAMESPACES || "").split(",") };
+  let kvStores = (process.env.KV_NAMESPACES || "").split(",");
+  let env = {};
+  if (process.argv[5]) {
+    // Import config from provided wrangler.toml
+    const config = wrangler.loadConfig(process.argv[5], process.argv[6]);
+    wrangler.toJSON(config);
+    env = {...config.vars, ...config.secrets};
+    if (Array.isArray(config['kv-namespaces'])) kvStores = kvStores.concat(config['kv-namespaces'].map(n=>n.binding));
+  }
+  const opts = { upstreamHost: process.argv[3], kvStores, env };
   const app = createApp(fs.readFileSync(process.argv[2]), opts);
 
   process.on("SIGHUP", () => {

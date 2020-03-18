@@ -65,17 +65,17 @@ class FetchEvent {
 
 class Worker {
   constructor(origin, workerContents, opts = {}) {
-    const { upstreamHost, kvStores = {} } = opts;
+    const { upstreamHost, kvStores = {}, env = {} } = opts;
     this.listeners = {
       fetch: e => e.respondWith(this.fetchUpstream(e.request))
     };
     this.upstreamHost = upstreamHost;
     this.origin = origin;
 
-    this.evaluateWorkerContents(workerContents, kvStores);
+    this.evaluateWorkerContents(workerContents, kvStores, env);
   }
 
-  evaluateWorkerContents(workerContents, kvStores) {
+  evaluateWorkerContents(workerContents, kvStores, env) {
     const context = {
       // From fetch
       Request,
@@ -108,7 +108,7 @@ class Worker {
     const script = new Script(workerContents);
     script.runInContext(
       createContext(
-        Object.assign(context, kvStores, {
+        Object.assign(context, kvStores, env, {
           fetch: this.fetchUpstream.bind(this),
           addEventListener: this.addEventListener.bind(this),
           triggerEvent: this.triggerEvent.bind(this),

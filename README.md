@@ -33,6 +33,7 @@ $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-l
 * crypto.subtle
 * Cloudflare key value store if you pass in the KV_NAMESPACE environment variable
 * Cloudflare [event.passThroughOnException()](https://workers.cloudflare.com/docs/reference/workers-concepts/fetch-event-lifecycle/#passthroughonexception) for runtime exception handling
+* Cloudflare Environment Variables and Secrets loaded from a wrangler.toml
 * ... this list should probably have more things
 
 ## Contributors
@@ -51,3 +52,32 @@ $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-l
 
 * NUM_WORKERS - Specifies the number of node workers (default 1, to get KV Working in memory)
 * KV_NAMESPACES - A comma separated list of keyspaces. (ex: MY_STORE,ANOTHER_STORE)
+
+## CloudFlare Environment Variables and Secrets
+
+Support for CloudFlare Environment Variables and Secrets is provided via a wrangler.toml file.
+See the [wrangler documentation](https://developers.cloudflare.com/workers/tooling/wrangler/configuration)
+for more information on the file schema.
+
+To load the wrangler.toml, specify it on the command line:
+```shell
+$ cloudflare-worker-local /path/to/worker.js localhost:3000 4000 /path/to/wrangler.toml
+```
+
+Optionally, the desired environment specified within the wrangler.toml can be loaded:
+```shell
+$ cloudflare-worker-local /path/to/worker.js localhost:3000 4000 /path/to/wrangler.toml production
+```
+
+Secrets are specified under the 'secrets' root key in the document. See the [wrangler.toml](./examples/wrangler.toml) 
+for an example of the supported structures.
+
+Two features are provided while loading the wrangler.toml:
+* All vars and secrets strings can contain ${} placeholders.
+  A placeholder path is resolved using lodash.get and has the context of the root of the config document.
+  A placeholder can not refer to a value defined later in the document that also has placeholders.
+* Any var or secret that is not a string will be automatically JSON encoded. 
+  This allows you to inject complex data into a script by JSON decoding the variable value.
+
+Additionally, any 'kv-namespaces' in the wrangler.toml will be appended to the list of namespaces
+provided by KV_NAMESPACES.
