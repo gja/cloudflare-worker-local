@@ -1,5 +1,6 @@
 const { createApp } = require("../server");
 const supertest = require("supertest");
+const { MinioKVStore, Minio } = require("../minio-kv-store");
 const wrangler = require("../../lib/wrangler");
 
 describe("server", () => {
@@ -106,4 +107,13 @@ describe("server", () => {
       .send(body)
       .expect(200, 'POST');
   });
+  it("can init a minio client", async () => {
+    const app = createApp(
+      'addEventListener("fetch", (e) => e.respondWith(new Response("success")))',
+      {
+        kvStore: ()=>new MinioKVStore(new Minio.Client({endPoint: 'localhost'})),
+        kvStores: [] // leave this empty so the client doesn't attempt to make requests
+      }
+    );
+  })
 });

@@ -29,6 +29,9 @@
     "node-fetch": "^2.3.0",
     "node-webcrypto-ossl": "^1.0.48"
   },
+  "optionalDependencies": {
+    "minio": "^7.0.15"
+  },
   "devDependencies": {
     "jest": "^24.7.1",
     "jest-junit": "^6.3.0",

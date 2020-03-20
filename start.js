@@ -2,9 +2,17 @@ const cluster = require("cluster");
 const process = require("process");
 const wrangler = require("./lib/wrangler");
 
+const { InMemoryKVStore } = require("./app/in-memory-kv-store");
+
 if (process.argv.length < 5) {
   console.log("Usage: cloudflare-worker-local /path/to/worker.js host.to.forward.request.to:3000 <port-to-run-on> [/path/to/wrangler.toml [env]]");
   process.exit(-1);
+}
+
+let kvStore = ()=>new InMemoryKVStore();
+if (process.env.MINIO_ENDPOINT) {
+  const { MinioKVStore, Minio, getEnvOpts } = require('./app/minio-kv-store');
+  kvStore = ()=>new MinioKVStore(new Minio.Client(getEnvOpts(process.env)));
 }
 
 if (cluster.isMaster) {
@@ -34,7 +42,7 @@ if (cluster.isMaster) {
     env = {...config.vars, ...config.secrets};
     if (Array.isArray(config['kv-namespaces'])) kvStores = kvStores.concat(config['kv-namespaces'].map(n=>n.binding));
   }
-  const opts = { upstreamHost: process.argv[3], kvStores, env };
+  const opts = { upstreamHost: process.argv[3], kvStores, kvStore, env };
   const app = createApp(fs.readFileSync(process.argv[2]), opts);
 
   process.on("SIGHUP", () => {

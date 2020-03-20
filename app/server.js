@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const { Worker } = require("./worker");
 const { InMemoryKVStore } = require("./in-memory-kv-store");
+const { Worker } = require("./worker");
 
 async function callWorker(worker, req, res) {
   const url = req.protocol + "://" + req.get("host") + req.originalUrl;
@@ -30,7 +30,9 @@ function buildKVStores(kvStoreFactory, kvStores) {
 
 function createApp(workerContent, opts = {}) {
   let workersByOrigin = {};
-  const kvStores = buildKVStores(new InMemoryKVStore(), opts.kvStores || []);
+  let kvStores;
+  if (opts.kvStore) kvStores = buildKVStores(opts.kvStore(), opts.kvStores || []);
+  else kvStores = buildKVStores(new InMemoryKVStore(), opts.kvStores || []);
   const app = express();
   app.use(bodyParser.raw({ type: "*/*", limit: "100GB" }));
   app.use(async (req, res) => {
