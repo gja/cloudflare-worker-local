@@ -224,6 +224,17 @@ describe("Workers", () => {
       expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe(undefined);
     });
 
+    test("It can access CloudFlare 'environment variables' and 'secrets' ", async () => {
+      const worker = new Worker(
+        "foo.com",
+        `addEventListener('test', () => ({ variable1, foo }))`,
+        {env: {variable1: "somevalue", foo: '{"bar": "shhh"}'}}
+      );
+      const { variable1, foo } = worker.triggerEvent("test");
+      expect(variable1).toBe("somevalue");
+      expect(foo).toBe('{"bar": "shhh"}');
+    });
+
     test("It fetches directly from origin is passThroughOnException() is called", async () => {
       const worker = new Worker(
         upstreamHost,

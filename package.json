@@ -19,10 +19,13 @@
   },
   "homepage": "https://github.com/gja/cloudflare-worker-local#readme",
   "dependencies": {
+    "@iarna/toml": "^2.2.3",
     "atob": "^2.1.2",
     "body-parser": "^1.18.3",
     "btoa": "^1.2.1",
     "express": "^4.16.4",
+    "lodash.get": "^4.4.2",
+    "lodash.merge": "^4.6.2",
     "node-fetch": "^2.3.0",
     "node-webcrypto-ossl": "^1.0.48"
   },

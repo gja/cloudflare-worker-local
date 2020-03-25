@@ -1,6 +1,7 @@
 const { createApp } = require("../server");
 const supertest = require("supertest");
 const { MinioKVStore, Minio } = require("../minio-kv-store");
+const wrangler = require("../../lib/wrangler");
 
 describe("server", () => {
   it("returns the response from the worker", async () => {
@@ -66,6 +67,29 @@ describe("server", () => {
     await supertest(app)
       .get("/some-route")
       .expect(200, "value");
+  });
+
+  it("can load CloudFlare 'environment variables' and 'secrets' from wrangler.toml", async () => {
+    let kvStores = ["MYSTORE"]; // Check if stores somehow clobbered
+    // Import config from provided wrangler.toml
+    const config = wrangler.loadConfig(__dirname + "/../../examples/wrangler.toml");
+    wrangler.toJSON(config);
+    const env = {...config.vars, ...config.secrets};
+    if (Array.isArray(config['kv-namespaces'])) kvStores = kvStores.concat(config['kv-namespaces'].map(n=>n.binding));
+    const app = createApp(
+      'addEventListener("fetch", (e) => e.respondWith(Promise.all([MYSTORE.get("key"), wranglerKV.get("key")]).then(([v, x]) => new Response(JSON.stringify({MYSTORE: v, wranglerKV: x, variable1, foo})))))',
+      {
+        kvStores,
+        env
+      }
+    );
+
+    await app.stores.MYSTORE.put("key", "value");
+    await app.stores.wranglerKV.put("key", "value");
+
+    await supertest(app)
+      .get("/some-route")
+      .expect(200, '{"MYSTORE":"value","wranglerKV":"value","variable1":"somevalue","foo":"{\\"bar\\":\\"shhh\\"}"}');
   });
 
   it("allows big post request", async () => {
