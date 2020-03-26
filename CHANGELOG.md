@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.12.1"></a>
+## [1.12.1](https://github.com/gja/cloudflare-worker-local/compare/v1.12.0...v1.12.1) (2020-03-26)
+
+
+### Bug Fixes
+
+* replace missing fs require ([#50](https://github.com/gja/cloudflare-worker-local/issues/50)) ([7ac3ca7](https://github.com/gja/cloudflare-worker-local/commit/7ac3ca7))
+
+
+
 <a name="1.12.0"></a>
 # [1.12.0](https://github.com/gja/cloudflare-worker-local/compare/v1.11.0...v1.12.0) (2020-03-25)
 
