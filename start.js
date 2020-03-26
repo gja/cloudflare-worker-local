@@ -1,3 +1,4 @@
+const fs = require("fs");
 const cluster = require("cluster");
 const process = require("process");
 const wrangler = require("./lib/wrangler");
