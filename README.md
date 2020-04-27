@@ -41,6 +41,7 @@ $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-l
 * Tejas Dinkar (@gja)
 * Jeremy Danyow (@jdanyow)
 * Rita Liu (@rita-liu)
+* Nolan Woods (@innovate-invent)
 
 ## Future enhancements
 
