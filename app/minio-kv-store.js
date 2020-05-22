@@ -7,14 +7,27 @@ class MinioKVStore {
   }
 
   getClient(namespace) {
-    const bucketPromise = async function() {
+    const bucketPromise = (async () => {
       if (!await this.client.bucketExists(namespace))
-          await this.client.makeBucket(namespace);
-    }();
+        await this.client.makeBucket(namespace);
+    })();
     return {
-      get: async key => {await bucketPromise; return JSON.parse((await this.client.getObject(namespace, key)).json())},
-      put: async (key, value) => {await bucketPromise; return this.client.putObject(namespace, key, JSON.stringify(value))},
-      delete: async key => {await bucketPromise; return this.client.removeObject(namespace, key)}
+      get: async key => {
+        await bucketPromise;
+        return await new Promise((resolve, reject) => {
+          let data = ''
+          this.client.getObject(namespace, key, (event, stream) => {
+            stream.on('data', chunk => {
+              data = `${data}${chunk.toString('utf8')}`
+            })
+            stream.on('error', reject)
+            stream.on('end', () => resolve(data))
+          }
+          )
+        })
+      },
+      put: async (key, value) => { await bucketPromise; return this.client.putObject(namespace, key, JSON.stringify(value)) },
+      delete: async key => { await bucketPromise; return this.client.removeObject(namespace, key) }
     };
   }
 }
