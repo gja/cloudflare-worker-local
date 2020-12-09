@@ -34,7 +34,8 @@ if (cluster.isMaster) {
 } else {
   const { createApp } = require(".");
   const port = process.argv[4];
-  let kvStores = (process.env.KV_NAMESPACES || "").split(",");
+  // .split(",") will return [""] when KV_NAMESPACES isn't set, so filter out empty strings
+  let kvStores = (process.env.KV_NAMESPACES || "").split(",").filter(name => name !== "");
   let env = {};
   if (process.argv[5]) {
     // Import config from provided wrangler.toml
