@@ -16,6 +16,9 @@ if (process.env.MINIO_ENDPOINT) {
   const { MinioKVStore, Minio, getEnvOpts } = require('./app/minio-kv-store');
   kvStore = ()=>new MinioKVStore(new Minio.Client(getEnvOpts(process.env)));
 }
+if (process.env.KV_FILE_ROOT) {
+  kvStore = ()=>new FileKVStore(process.env.KV_FILE_ROOT);
+}
 
 if (cluster.isMaster) {
   for (var i = 0; i < (process.env.NUM_WORKERS || 1); i++) {
