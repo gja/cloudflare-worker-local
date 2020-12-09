@@ -221,7 +221,7 @@ describe("Workers", () => {
       expect(await response.text()).toBe("foo");
       expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe("bar");
       await kvStoreFactory.getClient("MYSTORE").delete("foo");
-      expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe(undefined);
+      expect(await kvStoreFactory.getClient("MYSTORE").get("foo")).toBe(null);
     });
 
     test("It can access CloudFlare 'environment variables' and 'secrets' ", async () => {
