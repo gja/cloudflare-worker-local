@@ -6,6 +6,7 @@ const atob = require("atob");
 const btoa = require("btoa");
 const crypto = new (require("node-webcrypto-ossl"))();
 const { TextDecoder, TextEncoder } = require("util");
+const { caches } = require("./caches");
 
 function chomp(str) {
   return str.substr(0, str.length - 1);
@@ -104,6 +105,8 @@ class Worker {
       clearTimeout,
       clearInterval,
 
+      // Cache stubs
+      caches
     };
     const script = new Script(workerContents);
     script.runInContext(
