@@ -26,6 +26,7 @@
     "express": "^4.16.4",
     "lodash.get": "^4.4.2",
     "lodash.merge": "^4.6.2",
+    "mkdirp": "^1.0.4",
     "node-fetch": "^2.3.0",
     "node-webcrypto-ossl": "^1.0.48"
   },
@@ -35,6 +36,7 @@
   "devDependencies": {
     "jest": "^24.7.1",
     "jest-junit": "^6.3.0",
+    "rimraf": "^3.0.2",
     "standard-version": "^4.4.0",
     "supertest": "^3.3.0"
   },

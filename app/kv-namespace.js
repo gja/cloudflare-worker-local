@@ -181,4 +181,31 @@ class KVNamespace {
   }
 }
 
-module.exports = { KVNamespace };
+/**
+ * Helper for building a lister where we have all the data in the form of an array of [key, { expiration, metadata }]'s.
+ * Used by InMemoryKVStore and FileKVStore.
+ */
+function allLister(all, prefix, limit, startAfter) {
+  // Get all matching keys, sorted
+  all = all.filter(([key]) => key.startsWith(prefix)).sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+
+  // Find the correct part of the sorted array to return
+  let startIndex = 0,
+    endIndex = all.length;
+  if (startAfter !== '') {
+    startIndex = all.findIndex(([key]) => key === startAfter);
+    // If we couldn't find where to start, return nothing
+    if (startIndex === -1) return { keys: [], next: '' };
+    // Since we want to start AFTER this index, add 1 to it
+    startIndex++;
+  }
+  endIndex = startIndex + limit;
+
+  // Return the keys and the next key if there is one
+  return {
+    keys: all.slice(startIndex, endIndex),
+    next: endIndex < all.length ? all[endIndex - 1][0] : '',
+  };
+}
+
+module.exports = { KVNamespace, allLister };
