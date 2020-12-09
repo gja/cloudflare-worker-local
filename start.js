@@ -4,6 +4,7 @@ const process = require("process");
 const wrangler = require("./lib/wrangler");
 
 const { InMemoryKVStore } = require("./app/in-memory-kv-store");
+const { FileKVStore } = require("./app/file-kv-store");
 
 if (process.argv.length < 5) {
   console.log("Usage: cloudflare-worker-local /path/to/worker.js host.to.forward.request.to:3000 <port-to-run-on> [/path/to/wrangler.toml [env]]");
@@ -43,6 +44,16 @@ if (cluster.isMaster) {
     wrangler.toJSON(config);
     env = {...config.vars, ...config.secrets};
     if (Array.isArray(config['kv-namespaces'])) kvStores = kvStores.concat(config['kv-namespaces'].map(n=>n.binding));
+    // Add Workers Sites KV namespace and manifest to env if it's enabled
+    if (config.site && config.site.bucket) {
+      console.log(`Serving Workers Site from ${config.site.bucket}`);
+      // Workers Sites expects a KV namespace named __STATIC_CONTENT mapping file name keys to contents
+      env["__STATIC_CONTENT"] = new FileKVStore().getClient(config.site.bucket);
+      // Workers Sites also expects an object named __STATIC_CONTENT_MANIFEST mapping file names to file names
+      // containing an asset hash for edge caching. Since we stub caching out, we can just use the original file name
+      // as the file name with hash, so we set this to a proxy with returns a value equal to each requested key.
+      env["__STATIC_CONTENT_MANIFEST"] = new Proxy({}, {get: (target, prop) => prop});
+    }
   }
   const opts = { upstreamHost: process.argv[3], kvStores, kvStore, env };
   const app = createApp(fs.readFileSync(process.argv[2]), opts);

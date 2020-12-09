@@ -85,7 +85,15 @@ class KVNamespace {
     if (type === 'json') {
       typedValue = JSON.parse(value);
     } else if (type === 'arrayBuffer') {
-      typedValue = new TextEncoder().encode(value).buffer;
+      const buffer = new TextEncoder().encode(value).buffer;
+      // The API expects an ArrayBuffer to be returned, but Workers Sites expects there to be a length property (equal
+      // to the number of bytes in the buffer) which doesn't exist by default on ArrayBuffers. So we add a read-only
+      // length property equal to the byteLength.
+      Object.defineProperty(buffer, 'length', {
+        value: buffer.byteLength,
+        writable: false,
+      });
+      typedValue = buffer;
     } else if (type === 'stream') {
       throw new Error('Type "stream" is not supported!');
     }
