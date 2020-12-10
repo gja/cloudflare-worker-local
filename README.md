@@ -108,4 +108,6 @@ provided by KV_NAMESPACES.
 
 If a wrangler.toml file containing a `[site]` section with a `bucket` directory is loaded, the Workers Sites
 default KV namespace and manifest will be added to the worker's scope. Calls to `getAssetFromKV` will always
-return the latest version of an asset in the `bucket` directory.
+return the latest version of an asset in the `bucket` directory. Note that you'll need to bundle your worker
+code (with Webpack for instance) before running it to use `@cloudflare/kv-asset-handler`, as `import`/
+`require` are not in workers' scopes.
