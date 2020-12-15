@@ -1,3 +1,5 @@
+const { KVNamespace, allLister } = require('./kv-namespace');
+
 class InMemoryKVStore {
   constructor() {
     this.values = {};
@@ -5,11 +7,13 @@ class InMemoryKVStore {
 
   getClient(namespace) {
     this.values[namespace] = this.values[namespace] || {};
-    return {
-      get: async key => this.values[namespace][key],
-      put: async (key, value) => (this.values[namespace][key] = value),
-      delete: async key => delete this.values[namespace][key]
-    };
+    return new KVNamespace({
+      getter: async (key) => this.values[namespace][key] || null,
+      putter: async (key, value) => (this.values[namespace][key] = value),
+      remover: async (key) => delete this.values[namespace][key],
+      lister: async (prefix, limit, startAfter) =>
+        allLister(Object.entries(this.values[namespace]), prefix, limit, startAfter),
+    });
   }
 }
 

@@ -34,6 +34,7 @@ $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-l
 * Cloudflare key value store if you pass in the KV_NAMESPACE environment variable
 * Cloudflare [event.passThroughOnException()](https://workers.cloudflare.com/docs/reference/workers-concepts/fetch-event-lifecycle/#passthroughonexception) for runtime exception handling
 * Cloudflare Environment Variables and Secrets loaded from a wrangler.toml
+* Workers Sites
 * ... this list should probably have more things
 
 ## Contributors
@@ -42,6 +43,7 @@ $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-l
 * Jeremy Danyow (@jdanyow)
 * Rita Liu (@rita-liu)
 * Nolan Woods (@innovate-invent)
+* Brendan Coll (@mrbbot)
 
 ## Future enhancements
 
@@ -67,6 +69,11 @@ Optionally, these variables are available as well:
 MINIO_PORT, MINIO_USE_SSL, MINIO_REGION, MINIO_TRANSPORT, MINIO_SESSIONTOKEN, and MINIO_PARTSIZE 
 
 See [the Minio documentation](https://docs.min.io/docs/javascript-client-api-reference.html) for details on the various parameters.
+
+## CloudFlare KV Store emulation using the File System
+
+To use the File System as the KV store simply provide the KV_FILE_ROOT option as an environment
+variable. A directory will be created in here for each KV namespace.
 
 ## CloudFlare Environment Variables and Secrets
 
@@ -96,3 +103,11 @@ Two features are provided while loading the wrangler.toml:
 
 Additionally, any 'kv-namespaces' in the wrangler.toml will be appended to the list of namespaces
 provided by KV_NAMESPACES.
+
+## Workers Sites
+
+If a wrangler.toml file containing a `[site]` section with a `bucket` directory is loaded, the Workers Sites
+default KV namespace and manifest will be added to the worker's scope. Calls to `getAssetFromKV` will always
+return the latest version of an asset in the `bucket` directory. Note that you'll need to bundle your worker
+code (with Webpack for instance) before running it to use `@cloudflare/kv-asset-handler`, as `import`/
+`require` are not in workers' scopes.
