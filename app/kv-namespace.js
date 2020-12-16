@@ -1,4 +1,5 @@
 const { TextDecoder, TextEncoder } = require('util');
+const { ReadableStream } = require('web-streams-polyfill');
 
 /**
  * @typedef {Object} KVValue
@@ -40,6 +41,37 @@ class KVNamespace {
   }
 
   /**
+   * @param {ReadableStream} stream
+   * @returns {Promise<Buffer>} buffer containing concatenation of all chunks written to the stream
+   * @private
+   */
+  static _consumeReadableStream(stream) {
+    return new Promise((resolve, reject) => {
+      const reader = stream.getReader();
+      const chunks = [];
+      let totalLength = 0;
+
+      // Keep pushing until we're done reading the stream
+      function push() {
+        reader
+          .read()
+          .then(({ done, value }) => {
+            if (done) {
+              resolve(Buffer.concat(chunks, totalLength));
+            } else {
+              const chunk = Buffer.from(value);
+              totalLength += chunk.length;
+              chunks.push(chunk);
+              push();
+            }
+          })
+          .catch(reject);
+      }
+      push();
+    });
+  }
+
+  /**
    * @param {KVNamespaceOptions} options
    */
   constructor(options) {
@@ -59,7 +91,6 @@ class KVNamespace {
     return (await this.getWithMetadata(key, type)).value;
   }
 
-  // TODO: support "stream" type
   /**
    * @param {string} key
    * @param {("text" | "json" | "arrayBuffer" | "stream")} [type]
@@ -95,16 +126,21 @@ class KVNamespace {
       });
       typedValue = buffer;
     } else if (type === 'stream') {
-      throw new Error('Type "stream" is not supported!');
+      typedValue = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(value));
+          controller.close();
+        },
+      });
     }
 
     return { value: typedValue, metadata };
   }
 
-  // TODO: support FormData and ReadableStream's as values
+  // TODO: support FormData as value
   /**
    * @param {string} key
-   * @param {(string | ArrayBuffer)} value
+   * @param {(string | ReadableStream | ArrayBuffer)} value
    * @param {{expiration: (string | number | undefined), expirationTtl: (string | number | undefined), metadata: (* | undefined)}} [options]
    * @returns {Promise<void>}
    */
@@ -114,6 +150,11 @@ class KVNamespace {
     // Convert value to string if it isn't already
     if (value instanceof ArrayBuffer) {
       value = new TextDecoder().decode(value);
+    } else if (
+      value instanceof ReadableStream ||
+      (value.constructor.name === 'ReadableStream' && typeof value.getReader == 'function')
+    ) {
+      value = (await KVNamespace._consumeReadableStream(value)).toString('utf8');
     }
 
     // Normalise expiration

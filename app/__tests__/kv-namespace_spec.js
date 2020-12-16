@@ -1,9 +1,10 @@
-const path = require("path");
+const path = require('path');
 const { promisify } = require('util');
-const rimraf = promisify(require("rimraf"));
+const rimraf = promisify(require('rimraf'));
 const { KVNamespace } = require('../kv-namespace');
 const { InMemoryKVStore } = require('../in-memory-kv-store');
 const { FileKVStore } = require('../file-kv-store');
+const { ReadableStream } = require('web-streams-polyfill');
 
 const TEST_NAMESPACE = 'TEST_NAMESPACE';
 const TEST_NAMESPACE_PATH = path.join(__dirname, TEST_NAMESPACE);
@@ -20,7 +21,7 @@ async function createMemoryNamespace(initialData) {
 async function createFileNamespace(initialData) {
   await rimraf(TEST_NAMESPACE_PATH);
   const store = new FileKVStore(__dirname);
-  for(const [key, data] of Object.entries(initialData || {})) {
+  for (const [key, data] of Object.entries(initialData || {})) {
     await FileKVStore.putter(path.join(TEST_NAMESPACE_PATH, key), data);
   }
   return {
@@ -95,7 +96,7 @@ describe('kv-namespace', () => {
           expect(new Uint8Array(await ns.get('key', 'arrayBuffer'))).toStrictEqual(new Uint8Array([1, 2, 3]));
         });
 
-        test('it fails to get streams', async () => {
+        test('it gets streams', async () => {
           const { ns } = await createNamespace({
             key: {
               value: '\x01\x02\x03',
@@ -103,8 +104,14 @@ describe('kv-namespace', () => {
               metadata: null,
             },
           });
-          expect.assertions(1);
-          await expect(ns.get('key', 'stream')).rejects.toStrictEqual(new Error('Type "stream" is not supported!'));
+          const readableStream = await ns.get('key', 'stream');
+          const reader = readableStream.getReader();
+          let read = await reader.read();
+          expect(read.done).toBe(false);
+          expect(read.value).toStrictEqual(new Uint8Array([1, 2, 3]));
+          read = await reader.read();
+          expect(read.done).toBe(true);
+          expect(read.value).toBeUndefined();
         });
 
         test('it returns null for non-existent keys', async () => {
@@ -187,7 +194,7 @@ describe('kv-namespace', () => {
           });
         });
 
-        test('it fails to get streams with metadata', async () => {
+        test('it gets streams with metadata', async () => {
           const { ns } = await createNamespace({
             key: {
               value: '\x01\x02\x03',
@@ -195,10 +202,17 @@ describe('kv-namespace', () => {
               metadata: { testing: true },
             },
           });
-          expect.assertions(1);
-          await expect(ns.getWithMetadata('key', 'stream')).rejects.toStrictEqual(
-            new Error('Type "stream" is not supported!')
-          );
+          const { value: readableStream, metadata } = await ns.getWithMetadata('key', 'stream');
+          // Check stream contents
+          const reader = readableStream.getReader();
+          let read = await reader.read();
+          expect(read.done).toBe(false);
+          expect(read.value).toStrictEqual(new Uint8Array([1, 2, 3]));
+          read = await reader.read();
+          expect(read.done).toBe(true);
+          expect(read.value).toBeUndefined();
+          // Check metadata
+          expect(metadata).toStrictEqual({ testing: true });
         });
 
         test('it returns null for non-existent keys with metadata', async () => {
@@ -232,6 +246,24 @@ describe('kv-namespace', () => {
           await ns.put('key', 'value');
           await expect(await storedFor('key')).toStrictEqual({
             value: 'value',
+            expiration: -1,
+            metadata: null,
+          });
+        });
+
+        test('it puts streams', async () => {
+          const { ns, storedFor } = await createNamespace();
+          await ns.put(
+            'key',
+            new ReadableStream({
+              start(controller) {
+                controller.enqueue(new Uint8Array([1, 2, 3]));
+                controller.close();
+              },
+            })
+          );
+          await expect(await storedFor('key')).toStrictEqual({
+            value: '\x01\x02\x03',
             expiration: -1,
             metadata: null,
           });
