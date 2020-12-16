@@ -137,7 +137,6 @@ class KVNamespace {
     return { value: typedValue, metadata };
   }
 
-  // TODO: support FormData as value
   /**
    * @param {string} key
    * @param {(string | ReadableStream | ArrayBuffer)} value
