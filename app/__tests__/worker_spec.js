@@ -1,7 +1,7 @@
 const express = require("express");
 const { Worker } = require("../worker");
 const { InMemoryKVStore } = require("../in-memory-kv-store");
-const { Headers } = require("node-fetch");
+const { Headers } = require("@titelmedia/node-fetch");
 
 describe("Workers", () => {
   test("It Can Create and Execute a Listener", () => {
@@ -101,6 +101,13 @@ describe("Workers", () => {
     const response = await worker.executeFetchEvent("http://foo.com");
     expect(response.status).toBe(200);
     expect(await response.text()).toBe("hello");
+  });
+
+  test("It can return a redirect response", async () => {
+    const worker = new Worker("foo.com", 'addEventListener("fetch", (e) => e.respondWith(Response.redirect("http://bar.com", 302)))');
+    const response = await worker.executeFetchEvent("http://foo.com");
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toBe("http://bar.com");
   });
 
   describe("Cloudflare Headers", () => {
