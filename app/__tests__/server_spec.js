@@ -107,6 +107,7 @@ describe("server", () => {
       .send(body)
       .expect(200, 'POST');
   });
+
   it("can init a minio client", async () => {
     const app = createApp(
       'addEventListener("fetch", (e) => e.respondWith(new Response("success")))',
@@ -115,5 +116,19 @@ describe("server", () => {
         kvStores: [] // leave this empty so the client doesn't attempt to make requests
       }
     );
-  })
+  });
+
+  it("returns headers with multiple values", async () => {
+    const app = createApp(`addEventListener("fetch", (e) => {
+      const headers = new Headers();
+      headers.append("Some-Header", "value1");
+      headers.append("Some-Header", "value2");
+      e.respondWith(new Response("hello", {status: 201, headers: headers}));
+    })`);
+
+    await supertest(app)
+      .get("/some-route")
+      .expect(201, "hello")
+      .expect("Some-Header", "value1, value2");
+  });
 });
