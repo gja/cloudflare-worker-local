@@ -13,7 +13,7 @@ function chomp(str) {
 }
 
 function buildRequest(url, opts) {
-  const { country = "DEV", ip = "127.0.0.1", ray = "0000000000000000", ...requestOpts } = opts;
+  const { country = "DEV", ip = "127.0.0.1", ray = `${Math.floor(1000000000000000 + Math.random() * 9000000000000000)}`, ...requestOpts } = opts;
   const request = new Request(url, { redirect: "manual", ...requestOpts });
   const headers = request.headers;
   const parsedURL = new URL(request.url);
