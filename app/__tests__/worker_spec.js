@@ -110,7 +110,7 @@ describe("Workers", () => {
         'addEventListener("fetch", (e) => e.respondWith(new Response("hello", {headers: e.request.headers})))'
       );
       const response = await worker.executeFetchEvent("http://foo.com");
-      expect(response.headers.get("CF-Ray")).toBe("0000000000000000");
+      expect(response.headers.get("CF-Ray")).toHaveLength(16);
       expect(response.headers.get("CF-Visitor")).toBe('{"scheme":"http"}');
       expect(response.headers.get("CF-IPCountry")).toBe("DEV");
       expect(response.headers.get("CF-Connecting-IP")).toBe("127.0.0.1");
