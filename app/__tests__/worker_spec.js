@@ -1,7 +1,7 @@
 const express = require("express");
 const { Worker } = require("../worker");
 const { InMemoryKVStore } = require("../in-memory-kv-store");
-const { Headers } = require("node-fetch");
+const { Headers } = require("@titelmedia/node-fetch");
 
 describe("Workers", () => {
   test("It Can Create and Execute a Listener", () => {
@@ -96,11 +96,38 @@ describe("Workers", () => {
     });
   });
 
-  test("It can stub out responses", async () => {
-    const worker = new Worker("foo.com", 'addEventListener("fetch", (e) => e.respondWith(new Response("hello")))');
-    const response = await worker.executeFetchEvent("http://foo.com");
-    expect(response.status).toBe(200);
-    expect(await response.text()).toBe("hello");
+  describe("Responses", () => {
+    test("It can stub out responses", async () => {
+      const worker = new Worker("foo.com", 'addEventListener("fetch", (e) => e.respondWith(new Response("hello")))');
+      const response = await worker.executeFetchEvent("http://foo.com");
+      expect(response.status).toBe(200);
+      expect(await response.text()).toBe("hello");
+    });
+
+    test("It can return a redirect response", async () => {
+      const worker = new Worker("foo.com", 'addEventListener("fetch", (e) => e.respondWith(Response.redirect("http://bar.com", 302)))');
+      const response = await worker.executeFetchEvent("http://foo.com");
+      expect(response.status).toBe(302);
+      expect(response.headers.get("Location")).toBe("http://bar.com");
+    });
+
+    test("It can return a stream response", async () => {
+      const worker = new Worker(
+        "foo.com",
+        `addEventListener("fetch", (e) => {
+          e.respondWith(new Response(new ReadableStream({
+            start(controller) {
+              controller.enqueue("hello");
+              controller.enqueue(" world");
+              controller.close();
+            }
+          })));
+        })`
+      );
+      const response = await worker.executeFetchEvent("http://foo.com");
+      expect(response.status).toBe(200);
+      expect(await response.text()).toBe("hello world");
+    });
   });
 
   describe("Cloudflare Headers", () => {

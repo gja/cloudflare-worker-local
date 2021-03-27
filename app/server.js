@@ -15,8 +15,11 @@ async function callWorker(worker, req, res) {
   const data = await response.arrayBuffer();
 
   res.status(response.status);
-  for (var pair of response.headers) {
-    res.set(pair[0], pair[1]);
+  for (const keyValues of Object.entries(response.headers.raw())) {
+    const key = keyValues[0];
+    // If there's just one value, use it, otherwise, use the the values array
+    const value = keyValues[1].length === 1 ? keyValues[1][0] : keyValues[1];
+    res.set(key, value);
   }
   res.end(Buffer.from(data), "binary");
 }

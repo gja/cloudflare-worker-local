@@ -1,12 +1,28 @@
 const { createContext, Script } = require("vm");
-const { Request, Response, Headers } = require("node-fetch");
+// The titelmedia node-fetch fork uses Web Streams instead of NodeJS ones
+const { Request, Response, Headers } = require("@titelmedia/node-fetch");
 const { URL } = require("url");
-const fetch = require("node-fetch");
+const fetch = require("@titelmedia/node-fetch");
 const atob = require("atob");
 const btoa = require("btoa");
 const crypto = new (require("node-webcrypto-ossl"))();
 const { TextDecoder, TextEncoder } = require("util");
 const { caches } = require("./caches");
+const {
+  ByteLengthQueuingStrategy,
+  CountQueuingStrategy,
+  ReadableByteStreamController,
+  ReadableStream,
+  ReadableStreamBYOBReader,
+  ReadableStreamBYOBRequest,
+  ReadableStreamDefaultController,
+  ReadableStreamDefaultReader,
+  TransformStream,
+  TransformStreamDefaultController,
+  WritableStream,
+  WritableStreamDefaultController,
+  WritableStreamDefaultWriter,
+} = require("web-streams-polyfill");
 
 function chomp(str) {
   return str.substr(0, str.length - 1);
@@ -106,7 +122,22 @@ class Worker {
       clearInterval,
 
       // Cache stubs
-      caches
+      caches,
+
+      // Streams
+      ByteLengthQueuingStrategy,
+      CountQueuingStrategy,
+      ReadableByteStreamController,
+      ReadableStream,
+      ReadableStreamBYOBReader,
+      ReadableStreamBYOBRequest,
+      ReadableStreamDefaultController,
+      ReadableStreamDefaultReader,
+      TransformStream,
+      TransformStreamDefaultController,
+      WritableStream,
+      WritableStreamDefaultController,
+      WritableStreamDefaultWriter
     };
     const script = new Script(workerContents);
     script.runInContext(
