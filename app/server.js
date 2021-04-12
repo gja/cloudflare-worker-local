@@ -2,6 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { InMemoryKVStore } = require("./in-memory-kv-store");
 const { Worker } = require("./worker");
+const { pipeline } = require('stream');
+const { promisify } = require('util');
+const streamPipeline = promisify(pipeline);
 
 async function callWorker(worker, req, res) {
   const url = req.protocol + "://" + req.get("host") + req.originalUrl;
@@ -12,13 +15,19 @@ async function callWorker(worker, req, res) {
     body: ["GET", "HEAD"].includes(req.method) ? undefined : req.body,
     ip: req.connection.remoteAddress.split(":").pop()
   });
-  const data = await response.arrayBuffer();
 
   res.status(response.status);
   for (var pair of response.headers) {
     res.set(pair[0], pair[1]);
   }
-  res.end(Buffer.from(data), "binary");
+  
+  //if body is a stream then stream it otherwise just return
+  if (typeof response.body.on === 'function') {
+    return streamPipeline(response.body, res);
+  } else {
+    const data = await response.arrayBuffer();
+    res.end(Buffer.from(data), "binary");
+  }
 }
 
 function buildKVStores(kvStoreFactory, kvStores) {
