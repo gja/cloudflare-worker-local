@@ -55,7 +55,7 @@ if (cluster.isMaster) {
       // Workers Sites also expects an object named __STATIC_CONTENT_MANIFEST mapping file names to file names
       // containing an asset hash for edge caching. Since we stub caching out, we can just use the original file name
       // as the file name with hash, so we set this to a proxy with returns a value equal to each requested key.
-      env["__STATIC_CONTENT_MANIFEST"] = new Proxy({}, {get: (target, prop) => prop});
+      env["__STATIC_CONTENT_MANIFEST"] = "{}"; // Empty static content // new Proxy({}, {get: (target, prop) => prop});
     }
   }
   const opts = { upstreamHost: process.argv[3], kvStores, kvStore, env };
