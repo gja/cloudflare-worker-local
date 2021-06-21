@@ -148,7 +148,7 @@ class Worker {
     const fetchEvent = new FetchEvent(buildRequest(url, opts));
     try {
       this.triggerEvent("fetch", fetchEvent);
-      return fetchEvent.__response();
+      return await fetchEvent.__response();
     } catch (ex) {
       if (fetchEvent && fetchEvent.exceptionHandler && fetchEvent.exceptionHandler instanceof Function) {
         return fetchEvent.exceptionHandler();
