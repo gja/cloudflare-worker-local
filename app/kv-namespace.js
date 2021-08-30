@@ -85,7 +85,7 @@ class KVNamespace {
     if (type === 'json') {
       typedValue = JSON.parse(value);
     } else if (type === 'arrayBuffer') {
-      const buffer = new TextEncoder().encode(value).buffer;
+      const buffer = typeof value === 'string' ? new TextEncoder().encode(value) : value;
       // The API expects an ArrayBuffer to be returned, but Workers Sites expects there to be a length property (equal
       // to the number of bytes in the buffer) which doesn't exist by default on ArrayBuffers. So we add a read-only
       // length property equal to the byteLength.

@@ -32,6 +32,11 @@ async function createFileNamespace(initialData) {
   };
 }
 
+let nsObjTestVals = {
+  memory: 'value',
+  file: Buffer.from('value'),
+};
+
 const namespaceCreators = {
   memory: createMemoryNamespace,
   file: createFileNamespace,
@@ -59,7 +64,7 @@ describe('kv-namespace', () => {
               metadata: null,
             },
           });
-          expect(await ns.get('key')).toBe('value');
+          expect(await ns.get('key')).toStrictEqual(nsObjTestVals[namespaceType]);
         });
 
         test('it gets text', async () => {
@@ -70,7 +75,7 @@ describe('kv-namespace', () => {
               metadata: null,
             },
           });
-          expect(await ns.get('key', 'text')).toBe('value');
+          expect(await ns.get('key', 'text')).toStrictEqual(nsObjTestVals[namespaceType]);
         });
 
         test('it gets json', async () => {
@@ -136,7 +141,7 @@ describe('kv-namespace', () => {
             },
           });
           expect(await ns.getWithMetadata('key')).toStrictEqual({
-            value: 'value',
+            value: nsObjTestVals[namespaceType],
             metadata: { testing: true },
           });
         });
@@ -150,7 +155,7 @@ describe('kv-namespace', () => {
             },
           });
           expect(await ns.getWithMetadata('key', 'text')).toStrictEqual({
-            value: 'value',
+            value: nsObjTestVals[namespaceType],
             metadata: { testing: true },
           });
         });
@@ -231,7 +236,7 @@ describe('kv-namespace', () => {
           const { ns, storedFor } = await createNamespace();
           await ns.put('key', 'value');
           await expect(await storedFor('key')).toStrictEqual({
-            value: 'value',
+            value: nsObjTestVals[namespaceType],
             expiration: -1,
             metadata: null,
           });
@@ -241,7 +246,7 @@ describe('kv-namespace', () => {
           const { ns, storedFor } = await createNamespace();
           await ns.put('key', new Uint8Array([1, 2, 3]).buffer);
           await expect(await storedFor('key')).toStrictEqual({
-            value: '\x01\x02\x03',
+            value: namespaceType === 'memory' ? '\x01\x02\x03' : Buffer.from([1, 2, 3]),
             expiration: -1,
             metadata: null,
           });
@@ -251,7 +256,7 @@ describe('kv-namespace', () => {
           const { ns, storedFor } = await createNamespace();
           await ns.put('key', 'value', { expiration: 1000 });
           await expect(await storedFor('key')).toStrictEqual({
-            value: 'value',
+            value: nsObjTestVals[namespaceType],
             expiration: 1000,
             metadata: null,
           });
@@ -261,7 +266,7 @@ describe('kv-namespace', () => {
           const { ns, storedFor } = await createNamespace();
           await ns.put('key', 'value', { expiration: '1000' });
           await expect(await storedFor('key')).toStrictEqual({
-            value: 'value',
+            value: nsObjTestVals[namespaceType],
             expiration: 1000,
             metadata: null,
           });
@@ -272,7 +277,7 @@ describe('kv-namespace', () => {
           const { ns, storedFor } = await createNamespace();
           await ns.put('key', 'value', { expirationTtl: 1000 });
           await expect(await storedFor('key')).toStrictEqual({
-            value: 'value',
+            value: nsObjTestVals[namespaceType],
             expiration: 2000,
             metadata: null,
           });
@@ -283,7 +288,7 @@ describe('kv-namespace', () => {
           const { ns, storedFor } = await createNamespace();
           await ns.put('key', 'value', { expirationTtl: '1000' });
           await expect(await storedFor('key')).toStrictEqual({
-            value: 'value',
+            value: nsObjTestVals[namespaceType],
             expiration: 2000,
             metadata: null,
           });
@@ -293,7 +298,7 @@ describe('kv-namespace', () => {
           const { ns, storedFor } = await createNamespace();
           await ns.put('key', 'value', { metadata: { testing: true } });
           await expect(await storedFor('key')).toStrictEqual({
-            value: 'value',
+            value: nsObjTestVals[namespaceType],
             expiration: -1,
             metadata: { testing: true },
           });
@@ -306,7 +311,7 @@ describe('kv-namespace', () => {
             metadata: { testing: true },
           });
           await expect(await storedFor('key')).toStrictEqual({
-            value: 'value',
+            value: nsObjTestVals[namespaceType],
             expiration: 1000,
             metadata: { testing: true },
           });
@@ -320,7 +325,7 @@ describe('kv-namespace', () => {
             metadata: { testing: true },
           });
           await expect(await storedFor('key')).toStrictEqual({
-            value: 'value',
+            value: nsObjTestVals[namespaceType],
             expiration: 2000,
             metadata: { testing: true },
           });
@@ -339,7 +344,7 @@ describe('kv-namespace', () => {
             metadata: { testing: true },
           });
           await expect(await storedFor('key')).toStrictEqual({
-            value: 'value2',
+            value: namespaceType === 'memory' ? 'value2' : Buffer.from('value2', 'utf-8'),
             expiration: 1000,
             metadata: { testing: true },
           });
