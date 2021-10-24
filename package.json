@@ -27,8 +27,7 @@
     "lodash.get": "^4.4.2",
     "lodash.merge": "^4.6.2",
     "mkdirp": "^1.0.4",
-    "node-fetch": "^2.3.0",
-    "node-webcrypto-ossl": "^1.0.48"
+    "node-fetch": "^2.3.0"
   },
   "optionalDependencies": {
     "minio": "^7.0.15"
