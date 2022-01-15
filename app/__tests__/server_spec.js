@@ -107,6 +107,7 @@ describe("server", () => {
       .send(body)
       .expect(200, 'POST');
   });
+
   it("can init a minio client", async () => {
     const app = createApp(
       'addEventListener("fetch", (e) => e.respondWith(new Response("success")))',
@@ -115,5 +116,28 @@ describe("server", () => {
         kvStores: [] // leave this empty so the client doesn't attempt to make requests
       }
     );
-  })
+  });
+
+  it("config country overrides cf-ipcountry header ", async () => {
+    const app = createApp(
+      'addEventListener("fetch", (e) => e.respondWith(new Response("hello", {status: 200, headers: {"return-country": e.request.headers.get("cf-ipcountry")}})))',
+      {country: 'some-country'}
+    );
+
+    await supertest(app)
+      .get("/some-route")
+      .expect(200, "hello")
+      .expect("return-country", "some-country");
+  });
+
+  it("set DEV as cf-ipcountry header by default", async () => {
+    const app = createApp(
+      'addEventListener("fetch", (e) => e.respondWith(new Response("hello", {status: 200, headers: {"return-country": e.request.headers.get("cf-ipcountry")}})))'
+    );
+
+    await supertest(app)
+      .get("/some-route")
+      .expect(200, "hello")
+      .expect("return-country", "DEV");
+  });
 });

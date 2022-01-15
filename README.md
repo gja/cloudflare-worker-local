@@ -35,6 +35,7 @@ $ nodemon --watch /path/to/worker.js --signal SIGHUP --exec 'cloudflare-worker-l
 * Cloudflare [event.passThroughOnException()](https://workers.cloudflare.com/docs/reference/workers-concepts/fetch-event-lifecycle/#passthroughonexception) for runtime exception handling
 * Cloudflare Environment Variables and Secrets loaded from a wrangler.toml
 * Workers Sites
+* Set cloudflare `CF-IPCountry` header value from `COUNTRY` environment variable (default is `DEV`)
 * ... this list should probably have more things
 
 ## Contributors
