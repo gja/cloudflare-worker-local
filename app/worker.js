@@ -4,7 +4,7 @@ const { URL } = require("url");
 const fetch = require("node-fetch");
 const atob = require("atob");
 const btoa = require("btoa");
-const crypto = new (require("node-webcrypto-ossl"))();
+const crypto = require("crypto").webcrypto;
 const { TextDecoder, TextEncoder } = require("util");
 const { caches } = require("./caches");
 

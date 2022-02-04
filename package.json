@@ -27,8 +27,7 @@
     "lodash.get": "^4.4.2",
     "lodash.merge": "^4.6.2",
     "mkdirp": "^1.0.4",
-    "node-fetch": "^3.1.1",
-    "node-webcrypto-ossl": "^1.0.48"
+    "node-fetch": "^2.6.7"
   },
   "optionalDependencies": {
     "minio": "^7.0.15"
@@ -41,7 +40,7 @@
     "supertest": "^3.3.0"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=15.0.0"
   },
   "bin": {
     "cloudflare-worker-local": "./cli.js"
