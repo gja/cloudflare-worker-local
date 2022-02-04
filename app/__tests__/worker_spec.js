@@ -238,7 +238,15 @@ describe("Workers", () => {
     test("It fetches directly from origin is passThroughOnException() is called", async () => {
       const worker = new Worker(
         upstreamHost,
-        `addEventListener("fetch", (e) => {e.passThroughOnException(); throw "An exception from worker!"})`,
+        `
+        async function handleRequest(event) {
+          throw "An exception from worker!";
+        }
+        addEventListener("fetch", (e) => {
+          e.passThroughOnException();
+          e.respondWith(handleRequest(e));
+        });
+        `,
         { upstreamHost: upstreamHost }
       );
       const response = await worker.executeFetchEvent(`http://${upstreamHost}/success`);
