@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.15.0](https://github.com/gja/cloudflare-worker-local/compare/v1.13.0...v1.15.0) (2022-02-04)
+
+
+### Features
+
+* Set CF-IPCountry header from env var, close [#80](https://github.com/gja/cloudflare-worker-local/issues/80) ([#81](https://github.com/gja/cloudflare-worker-local/issues/81)) ([4b8b0e1](https://github.com/gja/cloudflare-worker-local/commit/4b8b0e1e758b5b840d8fea9724b5ae3624d40e81))
+
+
+### Bug Fixes
+
+* **kv:** handle binary files ([#76](https://github.com/gja/cloudflare-worker-local/issues/76)) ([8a03a79](https://github.com/gja/cloudflare-worker-local/commit/8a03a798098b057b49755d7265940d98fbb06423))
+* pipeline fix - Stream.pipeline is available only in nodejs 10 ([#82](https://github.com/gja/cloudflare-worker-local/issues/82)) ([3146f22](https://github.com/gja/cloudflare-worker-local/commit/3146f225d8f257ea034215bd348a6360037fe31b))
+
 ## [1.14.0](https://github.com/gja/cloudflare-worker-local/compare/v1.13.0...v1.14.0) (2022-02-04)
 
 
