@@ -6,14 +6,15 @@ const { pipeline } = require('stream');
 const { promisify } = require('util');
 const streamPipeline = promisify(pipeline);
 
-async function callWorker(worker, req, res) {
+async function callWorker(worker, req, res, opts) {
   const url = req.protocol + "://" + req.get("host") + req.originalUrl;
 
   const response = await worker.executeFetchEvent(url, {
     headers: req.headers,
     method: req.method,
     body: ["GET", "HEAD"].includes(req.method) ? undefined : req.body,
-    ip: req.connection.remoteAddress.split(":").pop()
+    ip: req.connection.remoteAddress.split(":").pop(),
+    country: opts.country
   });
 
   res.status(response.status);
@@ -49,7 +50,7 @@ function createApp(workerContent, opts = {}) {
       const origin = req.headers.host;
       workersByOrigin[origin] = workersByOrigin[origin] || new Worker(origin, workerContent, { ...opts, kvStores });
       const worker = workersByOrigin[origin];
-      await callWorker(worker, req, res);
+      await callWorker(worker, req, res, {country: opts.country});
     } catch (e) {
       console.warn(e);
       res.status(520);

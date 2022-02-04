@@ -58,7 +58,7 @@ if (cluster.isMaster) {
       env["__STATIC_CONTENT_MANIFEST"] = new Proxy({}, {get: (target, prop) => prop});
     }
   }
-  const opts = { upstreamHost: process.argv[3], kvStores, kvStore, env };
+  const opts = { upstreamHost: process.argv[3], kvStores, kvStore, env, country: process.env.COUNTRY };
   const app = createApp(fs.readFileSync(process.argv[2]), opts);
 
   process.on("SIGHUP", () => {
