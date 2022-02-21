@@ -21,7 +21,10 @@ async function callWorker(worker, req, res, opts) {
   for (var pair of response.headers) {
     res.set(pair[0], pair[1]);
   }
-  
+
+  let l = response.headers.raw()['set-cookie'];
+  if (l) res.set('set-cookie', l);
+
   //if body is a stream then stream it otherwise just return
   if (typeof response.body.on === 'function') {
     return streamPipeline(response.body, res);
